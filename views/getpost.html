@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세보기</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/validation.css">
+    <style>
+        body {
+            background: radial-gradient(120% 120% at 50% 0%, #f0f4ff 0%, #eef1f8 40%, #e6e9f1 100%);
+            min-height: 100vh;
+        }
+
+        .post-layout {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 3.25rem 1.5rem 4rem;
+        }
+
+        .post-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 28px;
+            box-shadow: 0 32px 70px rgba(15, 23, 42, 0.22);
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 2.75rem 3rem 2.25rem;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(14, 116, 144, 0.08));
+        }
+
+        #post-title {
+            font-size: 2.15rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            color: #0f172a;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.75rem;
+            flex-wrap: wrap;
+        }
+
+        .author-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-meta img {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+        }
+
+        .author-meta .name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #1f2937;
+        }
+
+        .author-meta small {
+            color: #6b7280;
+        }
+
+        .action-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        .post-actions {
+            display: inline-flex;
+            gap: 0.6rem;
+        }
+
+        .post-actions .btn {
+            border-radius: 999px;
+            padding: 0.45rem 1.1rem;
+            font-weight: 500;
+        }
+
+        .post-stats {
+            display: inline-flex;
+            gap: 1.25rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .post-stats span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .post-body {
+            padding: 2.5rem 3rem;
+        }
+
+        .post-gallery {
+            margin-bottom: 2.25rem;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 24px 58px rgba(15, 23, 42, 0.14);
+        }
+
+        #post-content {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #0f172a;
+            white-space: pre-wrap;
+            min-height: 220px;
+        }
+
+        .like-bar {
+            border-top: 1px solid rgba(226, 232, 240, 0.7);
+            padding: 2.25rem 3rem 2.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        #like-post-btn {
+            border-radius: 999px;
+            padding: 0.85rem 2.4rem;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 18px 42px rgba(220, 38, 38, 0.25);
+        }
+
+        .comments-area {
+            padding: 2.75rem 3rem 3rem;
+            background: rgba(248, 250, 252, 0.95);
+        }
+
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .comments-header h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        #comment-form {
+            background: white;
+            border-radius: 18px;
+            padding: 1.75rem;
+            box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.6);
+            margin-bottom: 2rem;
+        }
+
+        #comment-content-input,
+        .comment-edit-textarea {
+            border-radius: 14px;
+            padding: 0.85rem 1.1rem;
+            box-shadow: none;
+        }
+
+        #comment-content-input:focus,
+        .comment-edit-textarea:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.16);
+            border-color: rgba(13, 110, 253, 0.6);
+        }
+
+        #comment-submit-btn {
+            border-radius: 999px;
+            padding: 0.65rem 1.4rem;
+            font-weight: 600;
+        }
+
+        .comment-card {
+            border: none;
+            border-radius: 18px;
+            background: #ffffff;
+            padding: 1.6rem 1.75rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .comment-author img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-author .name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .comment-actions .btn {
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-weight: 500;
+        }
+
+        .comment-body {
+            margin-top: 0.95rem;
+            font-size: 0.99rem;
+            color: #27303f;
+            white-space: pre-wrap;
+        }
+
+        .comment-footer {
+            margin-top: 0.45rem;
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+
+        .comment-edit-form {
+            background: rgba(248, 250, 252, 0.85);
+            border-radius: 16px;
+            padding: 1.2rem;
+        }
+
+        #comment-loading-spinner {
+            margin-top: 1.5rem;
+            color: #6b7280;
+        }
+
+        .empty-state,
+        .error-state {
+            text-align: center;
+            padding: 1.4rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .empty-state {
+            color: #6b7280;
+        }
+
+        .error-state {
+            color: #dc2626;
+        }
+
+        footer.site-footer {
+            text-align: center;
+            padding: 2rem 0 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .post-wrapper {
+                border-radius: 22px;
+            }
+
+            .post-header,
+            .post-body,
+            .like-bar,
+            .comments-area {
+                padding: 2rem 1.5rem;
+            }
+
+            #post-title {
+                font-size: 1.75rem;
+            }
+
+            .post-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-meta {
+                align-items: flex-start;
+            }
+
+            .post-actions {
+                flex-wrap: wrap;
+            }
+
+            .comments-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div id="header-placeholder"></div>
+
+        <main id="post-container" class="post-layout">
+            <div class="post-wrapper">
+                <header class="post-header">
+                    <h1 id="post-title"></h1>
+                    <div class="post-meta">
+                        <div class="author-meta">
+                            <img id="author-profile-image" src="/img/default-profile.png" alt="프로필 이미지">
+                            <div class="author-details">
+                                <div id="author-nickname" class="name"></div>
+                                <small id="post-updated-at"></small>
+                            </div>
+                        </div>
+                        <div class="action-meta">
+                            <div class="post-actions" id="post-actions">
+                                <a href="#" id="edit-post-btn" class="btn btn-outline-secondary btn-sm" style="display: none;">수정</a>
+                                <button type="button" id="delete-post-btn" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete-confirm-modal" style="display: none;">삭제</button>
+                                <a href="/v1/posts" class="btn btn-outline-primary btn-sm">목록</a>
+                            </div>
+                            <div class="post-stats">
+                                <span id="view-count">👁️ 0</span>
+                                <span id="like-count">❤️ 0</span>
+                                <span id="comment-count">💬 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="post-body">
+                    <div id="image-carousel-container" class="post-gallery" style="display: none;">
+                        <div id="post-image-carousel" class="carousel slide" data-bs-ride="carousel">
+                            <div id="carousel-indicators" class="carousel-indicators"></div>
+                            <div id="carousel-inner" class="carousel-inner"></div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#post-image-carousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#post-image-carousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="post-content"></div>
+                </section>
+
+                <div class="like-bar">
+                    <button id="like-post-btn" class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
+                        <span class="like-icon">❤️</span>
+                        <span class="like-text">좋아요</span>
+                    </button>
+                </div>
+
+                <section id="comments-section" class="comments-area">
+                    <div class="comments-header">
+                        <h4>댓글</h4>
+                    </div>
+
+                    <form id="comment-form">
+                        <div class="mb-3">
+                            <textarea id="comment-content-input" class="form-control" rows="3" placeholder="댓글을 입력하세요..." required></textarea>
+                            <div id="comment-validation" class="validation-message mt-2" style="display: none;"></div>
+                            <div id="comment-counter" class="text-muted small mt-1">0/1000자</div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" id="comment-submit-btn" class="btn btn-outline-primary">댓글 등록</button>
+                        </div>
+                    </form>
+
+                    <div id="comments-list-container"></div>
+
+                    <div id="comment-loading-spinner" class="text-center my-4">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="site-footer">
+                    &copy; 2025 My Project
+                </footer>
+            </div>
+        </main>
+
+    </div> 
+
+    <div class="modal fade" id="delete-confirm-modal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">삭제 확인</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="comment-delete-confirm-modal" tabindex="-1" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCommentModalLabel">댓글 삭제 확인</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    댓글을 정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" id="confirm-comment-delete-btn">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/getpost.js"></script>
+    <script src="/js/comments.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/footer.js"></script>
+</body>
+</html>

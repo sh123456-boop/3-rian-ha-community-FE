@@ -1,0 +1,14 @@
+.validation-message {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
+    display: none;
+}
+
+.input-error {
+    border-color: red !important;
+}
+
+.input-success {
+    border-color: green !important;
+}

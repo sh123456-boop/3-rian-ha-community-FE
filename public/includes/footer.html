@@ -1,0 +1,38 @@
+<!-- File: public/includes/footer.html -->
+<footer class="border-top mt-5">
+  <div class="container py-4 pb-5"> <!-- pb-5로 푸터 내부 여백 추가 -->
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+      <nav class="nav small" aria-label="법적 고지">
+        <a class="nav-link px-2 text-muted" href="http://localhost:8080/terms">커뮤니티 이용약관</a>
+        <span class="text-muted d-none d-md-inline">·</span>
+        <a class="nav-link px-2 text-muted" href="http://localhost:8080/privacy">개인정보처리방침</a>
+      </nav>
+      <small class="text-muted order-first order-md-last">© 2025 Community</small>
+    </div>
+  </div>
+</footer>
+
+<!-- 맨 위로 버튼 -->
+<button id="back-to-top" type="button"
+        class="btn btn-outline-secondary rounded-circle position-fixed bottom-0 end-0 m-4 shadow-sm"
+        style="width:44px;height:44px;line-height:1;"
+        aria-label="맨 위로" hidden>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+       viewBox="0 0 16 16" aria-hidden="true">
+    <path fill="currentColor" fill-rule="evenodd"
+          d="M3.204 9.5a.75.75 0 0 0 1.06 0L8 5.765l3.736 3.735a.75.75 0 1 0 1.06-1.06L8.53 3.47a.75.75 0 0 0-1.06 0L3.204 8.44a.75.75 0 0 0 0 1.06z"/>
+  </svg>
+</button>
+
+<!-- 이 컴포넌트 전용 CSS: 버튼과 콘텐츠가 겹치지 않도록 하단 패딩 확보 -->
+<style>
+  /* 버튼 크기(44px) + 외곽 여백(m-4 = 1.5rem) + 여유 6px */
+  .has-back-to-top-pad {
+    padding-bottom: calc(44px + 1.5rem + 6px);
+  }
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .has-back-to-top-pad {
+      padding-bottom: calc(44px + 1.5rem + env(safe-area-inset-bottom));
+    }
+  }
+</style>

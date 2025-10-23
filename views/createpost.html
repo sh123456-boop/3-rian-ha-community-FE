@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 작성 페이지</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/validation.css">
+
+    <style>
+        body {
+            background: linear-gradient(145deg, #f4f7fb 0%, #eef1f8 100%);
+            min-height: 100vh;
+        }
+
+        .editor-shell {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.75rem 1.5rem 3.5rem;
+        }
+
+        .editor-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.14);
+            background: #ffffff;
+        }
+
+        .editor-card .card-body {
+            padding: 3rem 3.25rem;
+        }
+
+        .editor-heading h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .editor-heading p {
+            color: #6c757d;
+            margin-bottom: 2.25rem;
+        }
+
+        .editor-form .form-label {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.6rem;
+        }
+
+        .editor-form .form-control {
+            border-radius: 14px;
+            padding: 0.85rem 1.1rem;
+            box-shadow: none;
+            border: 1px solid #e2e8f0;
+        }
+
+        .editor-form .form-control:focus {
+            border-color: rgba(13, 110, 253, 0.65);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        #post-content {
+            min-height: 260px;
+            resize: vertical;
+        }
+
+        .image-upload-hint {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .image-preview-item {
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #f1f5f9;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+            cursor: grab;
+            aspect-ratio: 1 / 1;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-delete-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            background: rgba(15, 23, 42, 0.75);
+            color: #ffffff;
+            transition: background 0.2s ease;
+        }
+
+        .btn-delete-image:hover {
+            background: rgba(220, 38, 38, 0.9);
+        }
+
+        .sortable-ghost {
+            opacity: 0.35;
+            border: 2px dashed #0d6efd;
+            transform: scale(0.98);
+        }
+
+        .editor-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .editor-actions .btn {
+            border-radius: 999px;
+            padding: 0.7rem 1.4rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .editor-card .card-body {
+                padding: 2.5rem 1.75rem;
+            }
+
+            .editor-heading h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div id="header-placeholder"></div>
+
+        <main class="editor-shell">
+            <div class="card editor-card">
+                <div class="card-body editor-form">
+                    <div class="editor-heading">
+                        <h2>새 게시글 작성</h2>
+                        <p>아이디어를 공유하고 커뮤니티와 소통해보세요.</p>
+                    </div>
+
+                    <form id="post-form">
+                        <div class="mb-3">
+                            <label for="post-title" class="form-label">제목 (최대 100자)</label>
+                            <input type="text" class="form-control" id="post-title" placeholder="제목을 입력하세요" required maxlength="100">
+                            <div id="title-validation" class="validation-message"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="post-content" class="form-label">내용 (최대 10000자)</label>
+                            <textarea class="form-control" id="post-content" rows="10" placeholder="내용을 입력하세요" required maxlength="10000"></textarea>
+                            <div id="content-validation" class="validation-message"></div>
+                            <div class="text-end mt-2">
+                                <small id="content-counter" class="text-muted">0/10000자</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image-upload" class="form-label">이미지 첨부</label>
+                            <p class="image-upload-hint mb-2">최대 5장까지 업로드할 수 있으며, 드래그하여 순서를 변경할 수 있습니다.</p>
+                            <input class="form-control" type="file" id="image-upload" multiple accept="image/*">
+                            <div id="image-validation" class="validation-message"></div>
+                        </div>
+
+                        <div id="image-preview-container" class="image-preview-container"></div>
+
+                        <hr class="my-4">
+
+                        <div class="editor-actions">
+                            <a href="/v1/posts" class="btn btn-outline-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">게시물 작성</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div> 
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/createpost.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/footer.js"></script>
+</body>
+</html>
