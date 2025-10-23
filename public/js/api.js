@@ -12,6 +12,13 @@
         else localStorage.removeItem('accessToken');
     }
 
+    // access 헤더에 한글 포함시 로그인 페이지로 이동. access 토큰 null 처리
+    function purgeAccessTokenAndRedirect() {
+        setAccessToken(null);
+        alert('세션 정보가 손상되었습니다. 다시 로그인해주세요.');
+        window.location.href = '/v1/auth/login';
+    }
+
     async function reissueOnce() {
         // If a reissue is already in progress, return the same promise (single-flight)
         if (reissuePromise) return reissuePromise;
@@ -48,7 +55,16 @@
 
     async function customFetch(url, options = {}) {
         const headers = new Headers(options.headers || {});
-        if (accessToken) headers.set('access', accessToken);
+        if (accessToken) {
+            try {
+                headers.set('access', accessToken);
+            } catch (err) {
+                if (err instanceof TypeError) {
+                    purgeAccessTokenAndRedirect();
+                }
+                throw err;
+            }
+        }
 
         const baseInit = {
             ...options,
@@ -73,7 +89,16 @@
 
         // Retry with refreshed access token
         const retryHeaders = new Headers(options.headers || {});
-        if (accessToken) retryHeaders.set('access', accessToken);
+        if (accessToken) {
+            try {
+                retryHeaders.set('access', accessToken);
+            } catch (err) {
+                if (err instanceof TypeError) {
+                    purgeAccessTokenAndRedirect();
+                }
+                throw err;
+            }
+        }
 
         return fetch(url, {
             ...options,
