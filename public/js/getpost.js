@@ -60,14 +60,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const carouselContainer = document.getElementById('image-carousel-container');
             const indicatorsContainer = document.getElementById('carousel-indicators');
             const innerContainer = document.getElementById('carousel-inner');
+            const prevControl = carouselContainer.querySelector('.carousel-control-prev');
+            const nextControl = carouselContainer.querySelector('.carousel-control-next');
+
+            // 이전 내용이 남지 않도록 초기화
+            indicatorsContainer.innerHTML = '';
+            innerContainer.innerHTML = '';
+            indicatorsContainer.style.display = '';
 
             // DTO의 'order' 순서대로 이미지 정렬
             post.images.sort((a, b) => a.order - b.order);
+            const hasMultipleImages = post.images.length > 1;
 
             post.images.forEach((image, index) => {
                 // 하단 점(indicator) 추가
-                const indicator = `<button type="button" data-bs-target="#post-image-carousel" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}"></button>`;
-                indicatorsContainer.insertAdjacentHTML('beforeend', indicator);
+                if (hasMultipleImages) {
+                    const indicator = `<button type="button" data-bs-target="#post-image-carousel" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}"></button>`;
+                    indicatorsContainer.insertAdjacentHTML('beforeend', indicator);
+                }
 
                 // 이미지 슬라이드 추가
                 const item = `
@@ -76,6 +86,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
                 innerContainer.insertAdjacentHTML('beforeend', item);
             });
+
+            if (!hasMultipleImages) {
+                if (prevControl) prevControl.style.display = 'none';
+                if (nextControl) nextControl.style.display = 'none';
+                indicatorsContainer.style.display = 'none';
+            } else {
+                if (prevControl) prevControl.style.display = '';
+                if (nextControl) nextControl.style.display = '';
+                indicatorsContainer.style.display = '';
+            }
 
             carouselContainer.style.display = 'block'; // 이미지가 있을 때만 캐러셀을 보이게 함 
         }
