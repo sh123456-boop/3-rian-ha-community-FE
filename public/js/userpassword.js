@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordValidFeedback = document.getElementById('password-valid-feedback');
     const passwordConfirmValidation = document.getElementById('password-confirm-validation');
     const passwordConfirmValidFeedback = document.getElementById('password-confirm-valid-feedback');
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]|;:'",.<>?/]).+$/;
 
     // -----------------------------------------------------------------------------
     // ## 핵심 기능 함수 정의
@@ -34,6 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
             newPasswordInput.classList.add('is-invalid');
             newPasswordInput.classList.remove('is-valid');
             passwordValidation.textContent = '비밀번호는 8자 이상 20자 이하로 입력해주세요.';
+            return false;
+        }
+        if (!passwordRegex.test(password)) {
+            newPasswordInput.classList.add('is-invalid');
+            newPasswordInput.classList.remove('is-valid');
+            passwordValidation.textContent = '비밀번호는 영문자, 숫자, 특수문자를 최소 1개 이상 포함해야 합니다.';
             return false;
         }
 

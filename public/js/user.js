@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateProfileButton = document.getElementById('update-profile-button');
     const withdrawButton = document.getElementById('withdraw-button');
     const imageValidation = document.getElementById('image-validation');
+    const nicknameValidation = document.getElementById('nickname-validation');
+    const nicknameRegex = /^(?!.*[\u3131-\u318E])[A-Za-z0-9가-힣]+$/;
 
     // 모달 관련 DOM 요소
     const withdrawModal = new bootstrap.Modal(document.getElementById('withdraw-modal'));
@@ -53,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userEmailInput.value = userData.email;
             profileImagePreview.src = userData.profileUrl || '/img/default-profile.png';
             originalNickname = userData.nickname;
+            hideFieldMessage(nicknameValidation, userNicknameInput);
         } catch (error) {
             console.error('사용자 정보 로딩 중 오류:', error);
             alert('사용자 정보를 불러오는데 실패했습니다. 다시 로그인해주세요.');
@@ -65,12 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const newNickname = userNicknameInput.value.trim();
 
         if (newNickname === originalNickname) {
-            alert('현재 닉네임과 동일합니다.');
+            showFieldError(nicknameValidation, '현재 닉네임과 동일합니다.', userNicknameInput);
             isNicknameChecked = false;
             return;
         }
-        if (newNickname.length < 2 || newNickname.length > 10) {
-            alert('닉네임은 2자 이상 10자 이하로 입력해주세요.');
+        if (!validateNicknameField()) {
+            isNicknameChecked = false;
             return;
         }
 
@@ -89,29 +92,79 @@ document.addEventListener('DOMContentLoaded', () => {
             const ApiResponse = await response.json();
             const isAvailable = ApiResponse.data;
             if (isAvailable) {
-                alert('사용 가능한 닉네임입니다.');
+                showFieldSuccess(nicknameValidation, userNicknameInput, '사용 가능한 닉네임입니다.');
                 isNicknameChecked = true;
             } else {
-                alert('이미 사용 중인 닉네임입니다.');
+                showFieldError(nicknameValidation, '이미 사용 중인 닉네임입니다.', userNicknameInput);
                 isNicknameChecked = false;
             }
         } catch (error) {
             console.error('닉네임 중복 확인 중 오류:', error);
-            alert('중복 확인 중 오류가 발생했습니다.');
+            showFieldError(nicknameValidation, '중복 확인 중 오류가 발생했습니다.', userNicknameInput);
             isNicknameChecked = false;
         }
     };
     
-    // 오류 메시지 표시 함수
-    const showError = (message, isError = true) => {
+    const setImageMessage = (message, isError = true) => {
         imageValidation.textContent = message;
         imageValidation.style.display = 'block';
         imageValidation.style.color = isError ? 'red' : 'blue';
     };
 
-    // 메시지 숨기기 함수
-    const hideMessage = () => {
+    const clearImageMessage = () => {
         imageValidation.style.display = 'none';
+    };
+
+    const showFieldError = (element, message, inputElement) => {
+        element.textContent = message;
+        element.style.display = 'block';
+        element.style.color = 'red';
+        if (inputElement) {
+            inputElement.classList.add('input-error');
+            inputElement.classList.remove('input-success');
+        }
+    };
+
+    const showFieldSuccess = (element, inputElement, message = '') => {
+        if (message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            element.style.color = 'green';
+        } else {
+            element.style.display = 'none';
+        }
+        if (inputElement) {
+            inputElement.classList.remove('input-error');
+            inputElement.classList.add('input-success');
+        }
+    };
+
+    const hideFieldMessage = (element, inputElement) => {
+        element.style.display = 'none';
+        if (inputElement) {
+            inputElement.classList.remove('input-error');
+            inputElement.classList.remove('input-success');
+        }
+    };
+
+    const validateNicknameField = () => {
+        const nickname = userNicknameInput.value.trim();
+
+        if (!nickname) {
+            showFieldError(nicknameValidation, '닉네임을 입력해주세요.', userNicknameInput);
+            return false;
+        }
+        if (nickname.length < 2 || nickname.length > 10) {
+            showFieldError(nicknameValidation, '닉네임은 2자 이상 10자 이하로 입력해주세요.', userNicknameInput);
+            return false;
+        }
+        if (!nicknameRegex.test(nickname)) {
+            showFieldError(nicknameValidation, '닉네임은 완성형 한글, 영문, 숫자만 사용할 수 있습니다.', userNicknameInput);
+            return false;
+        }
+
+        hideFieldMessage(nicknameValidation, userNicknameInput);
+        return true;
     };
 
     // 3. 프로필 이미지 presignedURL get 메서드 
@@ -122,13 +175,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // 파일 형식 검사
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
-            showError('JPG, PNG, WEBP 형식의 이미지만 업로드 가능합니다.');
+            setImageMessage('JPG, PNG, WEBP 형식의 이미지만 업로드 가능합니다.');
             event.target.value = '';
             return;
         }
 
         try {
-            showError('이미지 업로드 중...', false);
+            setImageMessage('이미지 업로드 중...', false);
 
             const presignedResponse = await customFetch('http://localhost:8080/v1/users/presignedUrl', {
                 method: 'POST',
@@ -141,10 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const { s3_key, preSignedUrl } = ApiResponse.data;
             newProfileImageData = { file, s3_key, preSignedUrl };
             profileImagePreview.src = URL.createObjectURL(file);
-            hideMessage();
+            clearImageMessage();
         } catch (error) {
             console.error('이미지 처리 중 오류:', error);
-            showError('이미지 처리 중 오류가 발생했습니다.');
+            setImageMessage('이미지 처리 중 오류가 발생했습니다.');
             newProfileImageData = null;
             event.target.value = '';
         }
@@ -152,13 +205,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. 최종 수정완료 메서드
     const handleProfileUpdate = async () => {
+        const newNickname = userNicknameInput.value.trim();
+
+        if (newNickname !== originalNickname) {
+            if (!isNicknameChecked) {
+                if (!validateNicknameField()) {
+                    return;
+                }
+                showFieldError(nicknameValidation, '닉네임 중복 확인을 완료해주세요.', userNicknameInput);
+                return;
+            }
+        }
+
         updateProfileButton.disabled = true;
         updateProfileButton.textContent = '저장 중...';
+
         try {
             const updateTasks = [];
-            const newNickname = userNicknameInput.value.trim();
+
             if (newNickname !== originalNickname) {
-                if (!isNicknameChecked) throw new Error('닉네임 중복 확인을 완료해주세요.');
                 updateTasks.push(
                     customFetch('http://localhost:8080/v1/users/me/nickname', {
                         method: 'PUT',
@@ -179,6 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 );
             }
+
             const responses = await Promise.all(updateTasks);
             responses.forEach(res => {
                 if (!res.ok) throw new Error('프로필 업데이트 중 일부가 실패했습니다.');
@@ -196,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. presignedUrl로 프로필 이미지 put 요청 메서드 
     const uploadImageToS3 = async (url, file) => {
-        showError('프로필 이미지 저장 중...', false);
+        setImageMessage('프로필 이미지 저장 중...', false);
         const response = await fetch(url, {
             method: 'PUT',
             body: file,
@@ -223,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.status === 200) { // No Content
                 alert('회원탈퇴가 완료되었습니다. 이용해주셔서 감사합니다.');
-                document.cookie = 'refresh=; Max-Age=0; path=/;';
                 localStorage.removeItem('accessToken');
                 
                 window.location.href = '/v1/auth/login';
@@ -244,7 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------------------------
 
     userNicknameInput.addEventListener('input', () => {
-        if (userNicknameInput.value.trim() !== originalNickname) isNicknameChecked = false;
+        isNicknameChecked = false;
+        hideFieldMessage(nicknameValidation, userNicknameInput);
+    });
+
+    userNicknameInput.addEventListener('blur', () => {
+        const trimmedNickname = userNicknameInput.value.trim();
+        if (!trimmedNickname || trimmedNickname === originalNickname) {
+            hideFieldMessage(nicknameValidation, userNicknameInput);
+            return;
+        }
+        validateNicknameField();
     });
 
     checkNicknameButton.addEventListener('click', handleNicknameCheck);

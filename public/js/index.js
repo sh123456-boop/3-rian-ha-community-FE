@@ -14,6 +14,7 @@ const passwordValidation = document.getElementById('password-validation');
 
 // 이메일 형식 검사를 위한 정규 표현식
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]|;:'",.<>?/]).+$/;
 
 // 이메일 유효성 검사 함수
 function validateEmail() {
@@ -57,6 +58,13 @@ function validatePassword() {
     }
     if (password.length < 8 || password.length > 20) {
         passwordValidation.textContent = '비밀번호는 8~20자 사이여야 합니다.';
+        passwordValidation.style.display = 'block';
+        loginPasswordInput.classList.add('input-error');
+        loginPasswordInput.classList.remove('input-success');
+        return false;
+    }
+    if (!passwordRegex.test(password)) {
+        passwordValidation.textContent = '비밀번호는 영문자, 숫자, 특수문자를 최소 1개 이상 포함해야 합니다.';
         passwordValidation.style.display = 'block';
         loginPasswordInput.classList.add('input-error');
         loginPasswordInput.classList.remove('input-success');

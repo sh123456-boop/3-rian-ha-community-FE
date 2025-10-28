@@ -25,6 +25,8 @@ let lastCheckedNickname = '';
 
 // 이메일 형식 검사를 위한 정규 표현식
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]|;:'",.<>?/]).+$/;
+const nicknameRegex = /^(?!.*[\u3131-\u318E])[A-Za-z0-9가-힣]+$/;
 
 // 이메일 유효성 검사
 function validateEmail() {
@@ -56,6 +58,10 @@ function validateNickname() {
         showError(nicknameValidation, '닉네임은 2~10자 사이여야 합니다.', signupNicknameInput);
         return false;
     }
+    if (!nicknameRegex.test(nickname)) {
+        showError(nicknameValidation, '닉네임은 완성형 한글, 영문, 숫자만 사용할 수 있습니다.', signupNicknameInput);
+        return false;
+    }
     if (!isNicknameChecked || lastCheckedNickname !== nickname) {
         showError(nicknameValidation, '닉네임 중복 확인이 필요합니다.', signupNicknameInput);
         return false;
@@ -69,6 +75,10 @@ async function checkNickname() {
     
     if (nickname.length < 2 || nickname.length > 10) {
         showError(nicknameValidation, '닉네임은 2~10자 사이여야 합니다.', signupNicknameInput);
+        return;
+    }
+    if (!nicknameRegex.test(nickname)) {
+        showError(nicknameValidation, '닉네임은 완성형 한글, 영문, 숫자만 사용할 수 있습니다.', signupNicknameInput);
         return;
     }
 
@@ -108,6 +118,10 @@ function validatePassword() {
     }
     if (password.length < 8 || password.length > 20) {
         showError(passwordValidation, '비밀번호는 8~20자 사이여야 합니다.', signupPasswordInput);
+        return false;
+    }
+    if (!passwordRegex.test(password)) {
+        showError(passwordValidation, '비밀번호는 영문자, 숫자, 특수문자를 최소 1개 이상 포함해야 합니다.', signupPasswordInput);
         return false;
     }
     showSuccess(passwordValidation, signupPasswordInput);
