@@ -83,7 +83,7 @@ async function checkNickname() {
     }
 
     try {
-        const apiUrl = `http://localhost:8080/v1/users/me/nickname?nickname=${encodeURIComponent(nickname)}`;
+        const apiUrl = window.buildApiUrl(`/v1/users/me/nickname?nickname=${encodeURIComponent(nickname)}`);
         const response = await fetch(apiUrl, {
             method: 'GET',
             credentials: 'include'
@@ -202,7 +202,7 @@ signupButton.addEventListener('click', () => {
     }
 
     // 2. fetch로 회원가입 요청
-    fetch('http://localhost:8080/v1/auth/join', { 
+    fetch(window.buildApiUrl('/v1/auth/join'), { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

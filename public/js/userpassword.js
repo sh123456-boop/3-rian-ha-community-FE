@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // 2. 비밀번호 수정 fetch 요청
-            const response = await customFetch('http://localhost:8080/v1/users/me/password', {
+            const response = await customFetch(window.buildApiUrl('/v1/users/me/password'), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

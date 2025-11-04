@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // fetch를 customFetch로 변경
-            const response = await customFetch('http://localhost:8080/v1/posts', {
+            const response = await customFetch(window.buildApiUrl('/v1/posts'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials : 'include',
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const getPresignedUrlFromServer = async (filename) => {
         try {
             // fetch를 customFetch로 변경
-            const response = await customFetch('http://localhost:8080/v1/posts/presignedUrl', {
+            const response = await customFetch(window.buildApiUrl('/v1/posts/presignedUrl'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

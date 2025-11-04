@@ -42,12 +42,12 @@ const fetchAndRenderPosts = async () => {
         let apiUrl;
         //  현재 정렬 모드(currentSortMode)에 따라 API URL과 파라미터를 동적으로 생성
         if (currentSortMode === 'latest') {
-            apiUrl = 'http://localhost:8080/v1/posts';
+            apiUrl = window.buildApiUrl('/v1/posts');
             if (lastPostId) {
                 apiUrl += `?lastPostId=${lastPostId}`;
             }
         } else { // 'popular' 모드
-            apiUrl = 'http://localhost:8080/v1/posts/popular';
+            apiUrl = window.buildApiUrl('/v1/posts/popular');
             if (lastPostId && lastViewCount !== null) {
                 apiUrl += `?lastViewCount=${lastViewCount}&lastPostId=${lastPostId}`;
             }

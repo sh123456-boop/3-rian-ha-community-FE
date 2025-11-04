@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await customFetch(`http://localhost:8080/v1/posts/${postId}`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/posts/${postId}`), {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // 서버에 PUT 요청
-            const response = await customFetch(`http://localhost:8080/v1/posts/${postId}`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/posts/${postId}`), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 이미지를 올렸을 때 presigned url을 가져오는 메서드 (fetch post)
     const getPresignedUrlFromServer = async (filename) => {
         try {
-            const response = await customFetch('http://localhost:8080/v1/posts/presignedUrl', {
+            const response = await customFetch(window.buildApiUrl('/v1/posts/presignedUrl'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

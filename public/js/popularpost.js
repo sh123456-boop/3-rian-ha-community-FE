@@ -6,8 +6,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     Promise.all([
         
-        fetchAndRenderPosts('http://localhost:8080/v1/post-ranking/day', '#daily-posts-container'),
-        fetchAndRenderPosts('http://localhost:8080/v1/post-ranking/week', '#weekly-posts-container')
+        fetchAndRenderPosts(window.buildApiUrl('/v1/post-ranking/day'), '#daily-posts-container'),
+        fetchAndRenderPosts(window.buildApiUrl('/v1/post-ranking/week'), '#weekly-posts-container')
     ]).catch(error => {
         console.error("인기 게시물 로딩 중 오류가 발생했습니다.", error);
     });

@@ -94,7 +94,7 @@ loginButton.addEventListener('click', () => {
     }
 
     // 2. fetch를 이용해 서버로 로그인 요청
-    fetch('http://localhost:8080/v1/auth/login', {
+    fetch(window.buildApiUrl('/v1/auth/login'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

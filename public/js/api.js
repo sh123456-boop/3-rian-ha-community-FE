@@ -24,7 +24,7 @@
         if (reissuePromise) return reissuePromise;
 
         reissuePromise = (async () => {
-            const res = await fetch('http://localhost:8080/v1/auth/reissue', {
+            const res = await fetch(window.buildApiUrl('/v1/auth/reissue'), {
                 method: 'POST',
                 credentials: 'include', // refresh cookie must be sent
             });

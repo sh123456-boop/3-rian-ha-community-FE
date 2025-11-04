@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         try {
-            const response = await customFetch(`http://localhost:8080/v1/posts/${postId}/comments`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/posts/${postId}/comments`), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         isLoadingComments = true;
         commentLoadingSpinner.style.display = 'block';
         try {
-            let apiUrl = `http://localhost:8080/v1/posts/${postId}/comments`;
+            let apiUrl = window.buildApiUrl(`/v1/posts/${postId}/comments`);
             if (lastCommentId) apiUrl += `?lastCommentId=${lastCommentId}`;
             const response = await customFetch(apiUrl, { method: 'GET', credentials: 'include' });
             if (!response.ok) throw new Error('댓글을 불러오는 데 실패했습니다.');
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 5. 현재 로그인한 유저 정보 가져오기
     const fetchCurrentUser = async () => {
         try {
-            const response = await customFetch('http://localhost:8080/v1/users/me', { method: 'GET', credentials: 'include' });
+            const response = await customFetch(window.buildApiUrl('/v1/users/me'), { method: 'GET', credentials: 'include' });
             if (response.ok) {
                 const responseApi = await response.json();
                 const user = responseApi.data;
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const handleConfirmDelete = async () => {
         if (!commentIdToDelete) return;
         try {
-            const response = await customFetch(`http://localhost:8080/v1/comments/${commentIdToDelete}`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/comments/${commentIdToDelete}`), {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         try {
-            const response = await customFetch(`http://localhost:8080/v1/comments/${commentId}`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/comments/${commentId}`), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

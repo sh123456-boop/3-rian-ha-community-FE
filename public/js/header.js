@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (accessToken && headerProfileImage) {
         try {
             // 2. 사용자 프로필 이미지 get 요청(fetch)
-            const response = await customFetch('http://localhost:8080/v1/users/me', {
+            const response = await customFetch(window.buildApiUrl('/v1/users/me'), {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (confirm('로그아웃 하시겠습니까?')) {
                 try {
-                    const response = await customFetch('http://localhost:8080/v1/auth/logout', {
+                    const response = await customFetch(window.buildApiUrl('/v1/auth/logout'), {
                         method: 'POST',
                         credentials: 'include'
                     });

@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const apiUrl = `http://localhost:8080/v1/posts/${postId}`;
+            const apiUrl = window.buildApiUrl(`/v1/posts/${postId}`);
             
             // customFetch를 사용하여 API 요청
             const response = await customFetch(apiUrl, {
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupActionButtons = async (postAuthorId) => {
         try {
             // 현재 로그인한 유저 정보를 가져옵니다.
-            const userResponse = await customFetch('http://localhost:8080/v1/users/me', { method: 'GET', credentials: 'include' });
+            const userResponse = await customFetch(window.buildApiUrl('/v1/users/me'), { method: 'GET', credentials: 'include' });
             if (!userResponse.ok) return; // 로그인 상태가 아니면 버튼을 보여주지 않음
 
             const ApiResponse = await userResponse.json();
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleDeletePost = async () => {
         
         try {
-            const response = await customFetch(`http://localhost:8080/v1/posts/${postId}`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/posts/${postId}`), {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // 현재 좋아요 상태에 따라 요청 메서드와 URL 결정
             const method = isLiked ? 'DELETE' : 'POST';
-            const response = await customFetch(`http://localhost:8080/v1/posts/${postId}/like`, {
+            const response = await customFetch(window.buildApiUrl(`/v1/posts/${postId}/like`), {
                 method: method,
                 credentials: 'include'
             });

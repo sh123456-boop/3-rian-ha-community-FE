@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 사용자 프로필 가져오는 메서드
     const loadUserData = async () => {
         try {
-            const response = await customFetch('http://localhost:8080/v1/users/me', { method: 'GET', credentials: 'include' });
+            const response = await customFetch(window.buildApiUrl('/v1/users/me'), { method: 'GET', credentials: 'include' });
             if (!response.ok) throw new Error('사용자 정보 로딩 실패');
             
             const ApiResponse = await response.json();
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // 쿼리 파라미터로 닉네임을 전송
-            const apiUrl = `http://localhost:8080/v1/users/me/nickname?nickname=${encodeURIComponent(newNickname)}`;
+            const apiUrl = window.buildApiUrl(`/v1/users/me/nickname?nickname=${encodeURIComponent(newNickname)}`);
             
             const response = await customFetch(apiUrl, {
                 method: 'GET',
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             setImageMessage('이미지 업로드 중...', false);
 
-            const presignedResponse = await customFetch('http://localhost:8080/v1/users/presignedUrl', {
+            const presignedResponse = await customFetch(window.buildApiUrl('/v1/users/presignedUrl'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (newNickname !== originalNickname) {
                 updateTasks.push(
-                    customFetch('http://localhost:8080/v1/users/me/nickname', {
+                    customFetch(window.buildApiUrl('/v1/users/me/nickname'), {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newProfileImageData) {
                 await uploadImageToS3(newProfileImageData.preSignedUrl, newProfileImageData.file);
                 updateTasks.push(
-                    customFetch('http://localhost:8080/v1/users/me/image', {
+                    customFetch(window.buildApiUrl('/v1/users/me/image'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await customFetch('http://localhost:8080/v1/users/me', {
+            const response = await customFetch(window.buildApiUrl('/v1/users/me'), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
