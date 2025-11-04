@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             alert('게시물이 성공적으로 작성되었습니다.');
-            window.location.href = '/v1/posts';
+            window.location.href = '/posts';
 
         } catch (error) {
             console.error('게시물 작성 중 오류:', error);

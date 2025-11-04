@@ -8,7 +8,7 @@ const verifyToken = (req, res, next) => {
 
     // 2. 토큰이 없으면 로그인 페이지로 리디렉션
     if (!token) {
-        return res.redirect('/v1/auth/login');
+        return res.redirect('/');
     }
 
     try {
@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
     } catch (error) {
         // 5. 토큰이 만료되었거나 위조된 경우, 로그인 페이지로 리디렉션
         console.error("토큰 검증 실패:", error.message);
-        return res.redirect('/v1/auth/login');
+        return res.redirect('/');
     }
 };
 

@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요.');
                 // TODO: 로그아웃 처리 로직이 필요하다면 추가 (예: localStorage 토큰 삭제)
                 localStorage.removeItem('accessToken');
-                window.location.href = '/v1/auth/login'; // 로그인 페이지로 이동
+                window.location.href = '/'; // 로그인 페이지로 이동
             } else {
                 // 서버에서 보낸 에러 메시지 처리 (예: 유효성 검사 실패)
                 const errorData = await response.json();

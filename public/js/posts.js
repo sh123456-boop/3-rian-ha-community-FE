@@ -99,7 +99,7 @@ const createPostCard = (post) => {
     const profileImage = post.authorProfileImageUrl || '/img/default-profile.png';
     return `
         <div class="col-12 col-md-6">
-            <a href="/v1/posts/${post.postId}" class="text-decoration-none text-reset">
+            <a href="/posts/${post.postId}" class="text-decoration-none text-reset">
                 <article class="card post-card h-100">
                     <div class="card-body">
                         <h3 class="card-title">${post.title}</h3>

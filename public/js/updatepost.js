@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadPostData = async () => {
         if (!postId || isNaN(postId)) {
             alert('유효하지 않은 게시글 ID입니다.');
-            window.location.href = '/v1/posts';
+            window.location.href = '/posts';
             return;
         }
 
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             alert('게시물이 성공적으로 수정되었습니다.');
-            window.location.href = `/v1/posts/${postId}`;
+            window.location.href = `/posts/${postId}`;
 
         } catch (error) {
             console.error('게시물 수정 중 오류:', error);

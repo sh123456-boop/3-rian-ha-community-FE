@@ -78,14 +78,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // 요청 성공 후 로컬 스토리지 정리 및 페이지 이동
                     localStorage.removeItem('accessToken');
                     alert('로그아웃 되었습니다.');
-                    window.location.href = '/v1/auth/login';
+                    window.location.href = '/';
 
                 } catch (error) {
                     console.error('로그아웃 처리 중 오류:', error);
                     alert('로그아웃 처리 중 문제가 발생했습니다.');
                     // 에러가 발생하더라도 로컬 토큰은 삭제하고 로그인 페이지로 보내는 것이 안전(사용자 경험 측면)
                     localStorage.removeItem('accessToken');
-                    window.location.href = '/v1/auth/login';
+                    window.location.href = '/';
                 }
             }
         });

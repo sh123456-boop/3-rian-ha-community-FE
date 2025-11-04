@@ -6,6 +6,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch('/includes/footer.html', { headers: { 'Accept': 'text/html' } });
     host.innerHTML = await res.text();
+
+    const termsLink = host.querySelector('#footer-terms-link');
+    const privacyLink = host.querySelector('#footer-privacy-link');
+    if (typeof window.buildApiUrl === 'function') {
+      if (termsLink) termsLink.href = window.buildApiUrl('/terms');
+      if (privacyLink) privacyLink.href = window.buildApiUrl('/privacy');
+    }
   } catch (e) {
     console.error('Footer load failed:', e);
     return;

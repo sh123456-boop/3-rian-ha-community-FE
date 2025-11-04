@@ -16,7 +16,7 @@
     function purgeAccessTokenAndRedirect() {
         setAccessToken(null);
         alert('세션 정보가 손상되었습니다. 다시 로그인해주세요.');
-        window.location.href = '/v1/auth/login';
+        window.location.href = '/';
     }
 
     async function reissueOnce() {
@@ -83,7 +83,7 @@
             await reissueOnce();
         } catch (e) {
             alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-            window.location.href = '/v1/auth/login';
+            window.location.href = '/';
             throw e;
         }
 

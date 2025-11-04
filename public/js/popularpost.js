@@ -66,7 +66,7 @@ function createPostCard(post) {
                         <span title="댓글"><i class="fa-regular fa-comment"></i>${post.commentCount}</span>
                     </div>
                 </div>
-                <a href="/v1/posts/${post.postId}" class="link-overlay"></a>
+                <a href="/posts/${post.postId}" class="link-overlay"></a>
             </article>
         </div>
     `;

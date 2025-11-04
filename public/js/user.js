@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('사용자 정보 로딩 중 오류:', error);
             alert('사용자 정보를 불러오는데 실패했습니다. 다시 로그인해주세요.');
-            window.location.href = '/v1/auth/login';
+            window.location.href = '/';
         }
     };
     
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('회원탈퇴가 완료되었습니다. 이용해주셔서 감사합니다.');
                 localStorage.removeItem('accessToken');
                 
-                window.location.href = '/v1/auth/login';
+                window.location.href = '/';
             } else {
                 // 비밀번호가 틀렸거나 다른 에러 발생
                 const errorData = await response.json();

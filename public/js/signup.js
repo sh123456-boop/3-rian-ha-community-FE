@@ -223,7 +223,7 @@ signupButton.addEventListener('click', () => {
     .then(successMessage => {
         console.log('서버 응답:', successMessage);
         alert('회원가입 성공!');
-        window.location.href = '/v1/auth/login';
+        window.location.href = '/';
     })
     // 4. 실패시 서버로부터 받은 메세지를 alert
     .catch(error => {

@@ -113,7 +113,7 @@ loginButton.addEventListener('click', () => {
             
             localStorage.setItem('accessToken', accessToken); 
             // 4. 로그인 성공시 메인 페이지로 이동
-            window.location.href = '/v1/posts'; 
+            window.location.href = '/posts'; 
         } else {
             // 로그인 실패 시, 서버가 보내주는 에러 메시지 처리
             return response.json().then(errorData => {
@@ -127,5 +127,5 @@ loginButton.addEventListener('click', () => {
 
 // 회원가입으로 이동
 signupButton.addEventListener('click', () =>{
-    window.location.href = '/v1/auth/join';
+    window.location.href = '/join';
 });

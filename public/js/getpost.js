@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!postId || isNaN(postId)) {
             alert('유효하지 않은 게시글 ID입니다.');
-            window.location.href = '/v1/posts';
+            window.location.href = '/posts';
             return;
         }
 
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const deleteBtn = document.getElementById('delete-post-btn');
 
                 // 수정 버튼: 수정 페이지로 이동하는 링크 설정 및 버튼 보이기
-                editBtn.href = `/v1/posts/${postId}/update`; // 수정 페이지 경로
+                editBtn.href = `/posts/${postId}/update`; // 수정 페이지 경로
                 editBtn.style.display = 'inline-block';
 
                 // 삭제 버튼: 보이기
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 alert('게시글이 성공적으로 삭제되었습니다.');
-                window.location.href = '/v1/posts'; // 게시글 목록 페이지로 이동
+                window.location.href = '/posts'; // 게시글 목록 페이지로 이동
             } else {
                 const ApiResponse = await response.json();
                 const errorData = ApiResponse.data;

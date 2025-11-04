@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ## 전역 변수 및 DOM 요소 설정
     // -----------------------------------------------------------------------------
 
-    const postId = window.location.pathname.split('/v1/posts/')[1];
+    const postId = window.location.pathname.split('/posts/')[1];
 
     let isLoadingComments = false;
     let hasNextCommentPage = true;
