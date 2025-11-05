@@ -11,6 +11,7 @@ const loginEmailInput = document.getElementById('login-email');
 const loginPasswordInput = document.getElementById('login-password');
 const emailValidation = document.getElementById('email-validation');
 const passwordValidation = document.getElementById('password-validation');
+const naverLoginButton = document.getElementById('naver-login-button');
 
 // 이메일 형식 검사를 위한 정규 표현식
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -80,6 +81,13 @@ function validatePassword() {
 loginEmailInput.addEventListener('blur', validateEmail);
 loginPasswordInput.addEventListener('blur', validatePassword);
 
+if (naverLoginButton) {
+    naverLoginButton.addEventListener('click', () => {
+        // 네이버 소셜 로그인 페이지로 이동
+        window.location.href = window.buildApiUrl('/oauth2/authorization/naver');
+    });
+}
+
 
 loginButton.addEventListener('click', () => {
     const email = loginEmailInput.value;
@@ -129,3 +137,44 @@ loginButton.addEventListener('click', () => {
 signupButton.addEventListener('click', () =>{
     window.location.href = '/join';
 });
+
+function handleOAuthRedirectTokens() {
+    try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(
+            window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash
+        );
+
+        const accessTokenFromOAuth = searchParams.get('access') || hashParams.get('access');
+        const refreshTokenFromOAuth = searchParams.get('refresh') || hashParams.get('refresh');
+
+        if (!accessTokenFromOAuth) {
+            return;
+        }
+
+        localStorage.setItem('accessToken', accessTokenFromOAuth);
+
+        if (refreshTokenFromOAuth) {
+            // 새로고침 시에도 페이지 접근이 가능하도록 refresh 토큰을 쿠키에 보관
+            document.cookie = `refresh=${refreshTokenFromOAuth}; path=/`;
+        }
+
+        // URL에서 토큰 관련 파라미터 제거
+        searchParams.delete('access');
+        searchParams.delete('refresh');
+        hashParams.delete('access');
+        hashParams.delete('refresh');
+
+        const sanitizedSearch = searchParams.toString();
+        const sanitizedHash = hashParams.toString();
+        const newUrl = `${window.location.pathname}${sanitizedSearch ? `?${sanitizedSearch}` : ''}${sanitizedHash ? `#${sanitizedHash}` : ''}`;
+        window.history.replaceState({}, document.title, newUrl);
+
+        alert('로그인 성공!');
+        window.location.href = '/posts';
+    } catch (error) {
+        console.error('OAuth 토큰 처리 중 오류가 발생했습니다.', error);
+    }
+}
+
+handleOAuthRedirectTokens();
