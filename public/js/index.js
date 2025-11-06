@@ -12,6 +12,7 @@ const loginPasswordInput = document.getElementById('login-password');
 const emailValidation = document.getElementById('email-validation');
 const passwordValidation = document.getElementById('password-validation');
 const naverLoginButton = document.getElementById('naver-login-button');
+const kakaoLoginButton = document.getElementById('kakao-login-button');
 
 // 이메일 형식 검사를 위한 정규 표현식
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -85,6 +86,13 @@ if (naverLoginButton) {
     naverLoginButton.addEventListener('click', () => {
         // 네이버 소셜 로그인 페이지로 이동
         window.location.href = window.buildApiUrl('/oauth2/authorization/naver');
+    });
+}
+
+if (kakaoLoginButton) {
+    kakaoLoginButton.addEventListener('click', () => {
+        // 카카오 소셜 로그인 페이지로 이동
+        window.location.href = window.buildApiUrl('/oauth2/authorization/kakao');
     });
 }
 
