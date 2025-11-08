@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅 · 대화방</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        body {
+            background: #eef2ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-room-shell {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 960px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1rem 1.5rem;
+        }
+
+        .chat-room-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 35px 80px rgba(15, 23, 42, 0.12);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-room-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .chat-room-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-room-title .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .chat-room-title h3 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .chat-room-title span {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .chat-log {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .message-group {
+            max-width: 70%;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .message-group.self {
+            margin-left: auto;
+            align-items: flex-end;
+        }
+
+        .message-sender {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .message-bubble {
+            padding: 0.85rem 1rem;
+            border-radius: 18px;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: inline-block;
+            line-height: 1.5;
+        }
+
+        .message-group.self .message-bubble {
+            background: #4f46e5;
+            color: #ffffff;
+        }
+
+        .message-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .message-input-bar {
+            padding: 1.2rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .message-input-wrapper {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 0.6rem 1rem;
+            background: #f8fafc;
+        }
+
+        .message-input-wrapper:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+
+        .message-input-wrapper textarea {
+            border: none;
+            background: transparent;
+            flex: 1;
+            resize: none;
+            min-height: 46px;
+            max-height: 120px;
+            padding: 0;
+        }
+
+        .message-input-wrapper textarea:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .message-input-actions .btn {
+            border-radius: 16px;
+            padding: 0.5rem 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .chat-room-shell {
+                padding: 1.25rem 0.75rem 1rem;
+            }
+
+            .chat-room-card {
+                border-radius: 16px;
+            }
+
+            .chat-room-header {
+                padding: 1.2rem 1.25rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .message-group {
+                max-width: 85%;
+            }
+
+            .message-input-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .message-input-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-3">
+        <div id="header-placeholder"></div>
+    </div>
+
+    <main class="chat-room-shell">
+        <section class="chat-room-card">
+            <header class="chat-room-header">
+                <div class="chat-room-title">
+                    <div class="avatar">FE</div>
+                    <div>
+                        <h3 id="chat-room-name">FE 스터디 · 실시간 Q&A</h3>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-log" id="chat-log">
+                <div class="text-center text-muted py-4" id="chat-log-empty">
+                    메시지를 불러오는 중입니다...
+                </div>
+            </div>
+
+            <div class="message-input-bar">
+                <div class="message-input-wrapper">
+                    <textarea 
+                        id="message-input" 
+                        placeholder="메시지를 입력하세요..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <div class="message-input-actions">
+                    <button class="btn btn-primary" id="send-btn" disabled>
+                        보내기 <i class="bi bi-send-fill ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2/dist/stomp.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/chat_chatRoom.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/footer.js"></script>
+</body>
+</html>

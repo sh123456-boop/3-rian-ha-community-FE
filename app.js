@@ -56,6 +56,25 @@ app.get('/posts/:postId/update', verifyToken, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'updatepost.html'));
 });
 
+// 채팅 관련 - 유저 목록 페이지
+app.get('/chat/userList', verifyToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'chat_userList.html'));
+});
+
+// 채팅 관련 - 그룹 채팅방 목록 페이지
+app.get('/chat/groupChatList', verifyToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'chat_groupChatList.html'));
+});
+
+// 채팅 관련 - 내 채팅방 목록 페이지
+app.get('/chat/myChatList', verifyToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'chat_myChatList.html'));
+});
+
+// 채팅 관련 - 채팅방 페이지
+app.get('/chat/chatRoom', verifyToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'chat_chatRoom.html'));
+});
 
 app.listen(port, () => {
   console.log(`서버가 http://localhost:${port} 에서 실행 중입니다.`);

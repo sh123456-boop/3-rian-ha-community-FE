@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅 · 오픈 채팅 목록</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fb 0%, #eff4ff 100%);
+            min-height: 100vh;
+        }
+
+        .chat-shell {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2.5rem 0 3rem;
+        }
+
+        .chat-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 24px 55px rgba(15, 23, 42, 0.12);
+            padding: 2.25rem;
+        }
+
+        .chat-nav {
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            padding: 0.35rem 0.5rem;
+            background: #f8fafc;
+        }
+
+        .chat-nav .btn {
+            border-radius: 999px;
+            padding: 0.55rem 1.45rem;
+            font-weight: 600;
+        }
+
+        .chat-nav .btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+        }
+
+        .chat-section-title {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .search-bar {
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            padding: 0.35rem 0.35rem 0.35rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .create-room-bar {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .create-room-bar:focus-within {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+        }
+
+        .search-bar:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 0.95rem;
+            padding: 0.25rem 0;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .search-bar button {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+        }
+
+        .chat-room-list .list-group-item {
+            border: none;
+            border-bottom: 1px solid #edf2f7;
+            padding: 1.1rem 0;
+        }
+
+        .chat-room-list .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .room-meta {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .badge-topic {
+            background: #e0ecff;
+            color: #2563eb;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+        }
+
+        .chat-room-list .btn-join {
+            border-radius: 999px;
+            padding: 0.45rem 1.4rem;
+            font-weight: 600;
+        }
+
+        .pagination .page-link {
+            border: none;
+            color: #4b5563;
+            border-radius: 999px !important;
+            margin: 0 0.15rem;
+            padding: 0.55rem 0.9rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+        }
+
+        @media (max-width: 576px) {
+            .chat-card {
+                border-radius: 16px;
+                padding: 1.5rem;
+            }
+
+            .chat-nav {
+                flex-direction: column;
+                border-radius: 18px;
+                gap: 0.5rem;
+            }
+
+            .chat-nav .btn {
+                width: 100%;
+            }
+
+            .chat-room-list .list-group-item {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container chat-shell">
+        
+        <div id="header-placeholder"></div>
+
+        <section class="chat-card">
+            <div class="d-flex flex-wrap align-items-center gap-2 chat-nav">
+                <a href="/chat/userList" class="btn btn-light">
+                    <i class="bi bi-people-fill me-1"></i>
+                    사용자 목록
+                </a>
+                <a href="/chat/groupChatList" class="btn btn-light active">
+                    <i class="bi bi-broadcast-pin me-1"></i>
+                    오픈 채팅 목록
+                </a>
+                <a href="/chat/myChatList" class="btn btn-light">
+                    <i class="bi bi-chat-dots-fill me-1"></i>
+                    내 채팅방
+                </a>
+            </div>
+
+            <h2 class="chat-section-title">오픈 채팅 목록</h2>
+            <p class="text-muted mb-4">관심있는 채팅방을 골라 참여해보세요.</p>
+
+            <div class="search-bar mb-4">
+                <i class="bi bi-search text-primary"></i>
+                <input 
+                    type="search" 
+                    id="room-search" 
+                    placeholder="채팅방 이름 또는 주제 검색" 
+                    autocomplete="off" 
+                    aria-label="오픈 채팅 검색"
+                >
+                <button type="button" class="btn btn-primary btn-sm flex-shrink-0" id="room-search-btn">
+                    검색하기
+                </button>
+            </div>
+
+            <div class="search-bar create-room-bar mb-4">
+                <i class="bi bi-plus-circle text-success"></i>
+                <input 
+                    type="text" 
+                    id="room-create-input" 
+                    placeholder="새 오픈 채팅방 이름을 입력하세요" 
+                    autocomplete="off" 
+                    aria-label="오픈 채팅 생성"
+                >
+                <button type="button" class="btn btn-success btn-sm flex-shrink-0" id="room-create-btn">
+                    개설하기
+                </button>
+            </div>
+
+            <div class="list-group chat-room-list" id="room-list">
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="fw-semibold">FE 스터디 · 실시간 Q&A</span>
+                            <span class="badge-topic">#Frontend</span>
+                        </div>
+                        <div class="room-meta">
+                            128명이 참여 중 · 최신 기술 트렌드와 코드 리뷰를 나눠요.
+                        </div>
+                    </div>
+                    <a href="/chat/chatRoom?roomId=1" class="btn btn-outline-primary btn-join">
+                        <i class="bi bi-door-open me-1"></i> 참여하기
+                    </a>
+                </div>
+
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="fw-semibold">커피챗 · 사이드프로젝트</span>
+                            <span class="badge-topic">#SideProject</span>
+                        </div>
+                        <div class="room-meta">
+                            64명이 참여 중 · 팀원을 찾거나 진행 상황을 공유해요.
+                        </div>
+                    </div>
+                    <a href="/chat/chatRoom?roomId=2" class="btn btn-outline-primary btn-join">
+                        <i class="bi bi-door-open me-1"></i> 참여하기
+                    </a>
+                </div>
+
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="fw-semibold">디자인 · 툴 스터디</span>
+                            <span class="badge-topic">#Design</span>
+                        </div>
+                        <div class="room-meta">
+                            42명이 참여 중 · Figma, XD 등 디자인 툴 팁을 공유해요.
+                        </div>
+                    </div>
+                    <a href="/chat/chatRoom?roomId=3" class="btn btn-outline-primary btn-join">
+                        <i class="bi bi-door-open me-1"></i> 참여하기
+                    </a>
+                </div>
+            </div>
+
+            <nav aria-label="오픈 채팅 페이지 넘김" class="mt-4">
+                <ul class="pagination justify-content-center mb-0" id="room-pagination">
+                    <li class="page-item disabled">
+                        <span class="page-link">이전</span>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">다음</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/chat_groupChatList.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/footer.js"></script>
+</body>
+</html>

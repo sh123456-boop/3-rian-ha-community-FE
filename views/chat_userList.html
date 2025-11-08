@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅 · 사용자 목록</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fb 0%, #eff4ff 100%);
+            min-height: 100vh;
+        }
+
+        .chat-shell {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2.5rem 0 3rem;
+        }
+
+        .chat-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 24px 55px rgba(15, 23, 42, 0.12);
+            padding: 2.25rem;
+        }
+
+        .chat-nav {
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            padding: 0.35rem 0.5rem;
+            background: #f8fafc;
+        }
+
+        .chat-nav .btn {
+            border-radius: 999px;
+            padding: 0.55rem 1.45rem;
+            font-weight: 600;
+        }
+
+        .chat-nav .btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+        }
+
+        .chat-section-title {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .search-bar {
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            padding: 0.35rem 0.35rem 0.35rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .search-bar:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 0.95rem;
+            padding: 0.25rem 0;
+        }
+
+        .search-bar button {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .search-bar input::placeholder {
+            color: #94a3b8;
+        }
+
+        .chat-user-list .list-group-item {
+            border: none;
+            border-bottom: 1px solid #edf2f7;
+            padding: 1rem 0;
+        }
+
+        .chat-user-list .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .avatar-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #ebf2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .chat-user-list .btn-chat {
+            border-radius: 999px;
+            padding: 0.45rem 1.4rem;
+            font-weight: 600;
+        }
+
+        .pagination .page-link {
+            border: none;
+            color: #4b5563;
+            border-radius: 999px !important;
+            margin: 0 0.15rem;
+            padding: 0.55rem 0.9rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+        }
+
+        @media (max-width: 576px) {
+            .chat-card {
+                border-radius: 16px;
+                padding: 1.5rem;
+            }
+
+            .chat-nav {
+                flex-direction: column;
+                border-radius: 18px;
+                gap: 0.5rem;
+            }
+
+            .chat-nav .btn {
+                width: 100%;
+            }
+
+            .chat-user-list .list-group-item {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container chat-shell">
+        
+        <div id="header-placeholder"></div>
+
+        <section class="chat-card">
+            <div class="d-flex flex-wrap align-items-center gap-2 chat-nav">
+                <a href="/chat/userList" class="btn btn-light active">
+                    <i class="bi bi-people-fill me-1"></i>
+                    사용자 목록
+                </a>
+                <a href="/chat/groupChatList" class="btn btn-light">
+                    <i class="bi bi-broadcast-pin me-1"></i>
+                    오픈 채팅 목록
+                </a>
+                <a href="/chat/myChatList" class="btn btn-light">
+                    <i class="bi bi-chat-dots-fill me-1"></i>
+                    내 채팅방
+                </a>
+            </div>
+
+            <h2 class="chat-section-title">사용자 목록</h2>
+            <p class="text-muted mb-4">채팅하고 싶은 사용자를 선택해 대화를 시작하세요.</p>
+
+            <div class="search-bar mb-4">
+                <i class="bi bi-search text-primary"></i>
+                <input 
+                    type="search" 
+                    id="user-search" 
+                    placeholder="사용자 이름 검색" 
+                    autocomplete="off" 
+                    aria-label="사용자 검색"
+                >
+                <button type="button" class="btn btn-primary btn-sm flex-shrink-0" id="user-search-btn">
+                    검색하기
+                </button>
+            </div>
+
+            <div class="list-group chat-user-list" id="user-list">
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-user-name="서지원" data-user-id="101">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-circle">SJ</div>
+                        <div>
+                            <div class="fw-semibold" data-user-name-text>서지원</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-chat" data-user-id="101">
+                        <i class="bi bi-send-fill me-1"></i> 채팅하기
+                    </button>
+                </div>
+
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-user-name="민지" data-user-id="102">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-circle">MJ</div>
+                        <div>
+                            <div class="fw-semibold" data-user-name-text>민지</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-chat" data-user-id="102">
+                        <i class="bi bi-send-fill me-1"></i> 채팅하기
+                    </button>
+                </div>
+
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-user-name="한결" data-user-id="103">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-circle">HK</div>
+                        <div>
+                            <div class="fw-semibold" data-user-name-text>한결</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-chat" data-user-id="103">
+                        <i class="bi bi-send-fill me-1"></i> 채팅하기
+                    </button>
+                </div>
+            </div>
+
+            <nav aria-label="사용자 페이지 넘김" class="mt-4">
+                <ul class="pagination justify-content-center mb-0" id="pagination">
+                    <li class="page-item disabled">
+                        <span class="page-link">이전</span>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">다음</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/chat_userList.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/footer.js"></script>
+</body>
+</html>
