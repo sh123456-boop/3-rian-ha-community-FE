@@ -1,3 +1,10 @@
+// function 정의
+// 1. 오픈 채팅방 렌더링
+// 2. 페이지네이션 UI 갱신
+// 3. 오픈 채팅방 목록 api 호출
+// 4. 이름으로 채팅방 검색
+// 5. 오픈 채팅방 생성 api 호출
+
 (() => {
     const roomListEl = document.getElementById('room-list');
     const paginationEl = document.getElementById('room-pagination');
@@ -17,10 +24,7 @@
         isCreatingRoom: false,
     };
 
-    /**
-     * 오픈 채팅 목록을 렌더링한다.
-     * @param {Array} list
-     */
+    // 오픈 채팅방 렌더링
     function renderRooms(list) {
         if (!list.length) {
             roomListEl.innerHTML = `
@@ -33,16 +37,17 @@
 
         const html = list.map((room) => {
             const name = room.roomName ?? '이름 없는 채팅방';
+            const encodedName = encodeURIComponent(name);
             return `
-                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-room-id="${room.roomId}">
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-room-id="${room.roomId}" data-room-name="${encodedName}">
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <span class="fw-semibold">${name}</span>
                         </div>
                     </div>
-                    <a href="/chat/chatRoom?roomId=${room.roomId}" class="btn btn-outline-primary btn-join">
+                    <button type="button" class="btn btn-outline-primary btn-join" data-room-id="${room.roomId}" data-room-name="${encodedName}">
                         <i class="bi bi-door-open me-1"></i> 참여하기
-                    </a>
+                    </button>
                 </div>
             `;
         }).join('');
@@ -50,9 +55,7 @@
         roomListEl.innerHTML = html;
     }
 
-    /**
-     * 페이지네이션 UI를 갱신한다.
-     */
+    // 페이지네이션 UI 갱신
     function renderPagination() {
         const items = [];
 
@@ -93,9 +96,7 @@
         paginationEl.innerHTML = items.join('');
     }
 
-    /**
-     * 목록에 표시할 로딩 스피너를 렌더링한다.
-     */
+    // 로딩 스피너 렌더링
     function renderLoading() {
         roomListEl.innerHTML = `
             <div class="text-center py-5 w-100">
@@ -123,10 +124,7 @@
         });
     }
 
-    /**
-     * 오픈 채팅 페이지 목록을 가져온다.
-     * @param {number} page
-     */
+    // 오픈 채팅 목록 호출 API
     async function fetchRooms(page) {
         if (state.isLoading) return;
         state.isLoading = true;
@@ -160,10 +158,7 @@
         }
     }
 
-    /**
-     * 이름으로 채팅방을 검색한다.
-     * @param {string} name
-     */
+    // 이름으로 채팅방 검색
     async function searchRoomsByName(name) {
         const trimmed = name.trim();
         if (!trimmed) {
@@ -239,10 +234,7 @@
         });
     }
 
-    /**
-     * 오픈 채팅방을 생성한다.
-     * @param {string} roomName
-     */
+    // 오픈 채팅방 생성 API
     async function createGroupRoom(roomName) {
         const trimmed = roomName.trim();
         if (!trimmed) {
@@ -273,6 +265,33 @@
         }
     }
 
+    async function joinGroupRoom(roomId, roomName, buttonEl) {
+        if (!roomId || !Number.isFinite(roomId)) return;
+        if (buttonEl?.dataset.loading === 'true') return;
+
+        if (buttonEl) {
+            buttonEl.disabled = true;
+            buttonEl.dataset.loading = 'true';
+        }
+
+        try {
+            const url = window.buildApiUrl(`/v1/chat/room/group/${roomId}/join`);
+            const res = await window.customFetch(url, { method: 'POST' });
+            if (!res.ok) throw new Error('채팅방에 참여할 수 없습니다.');
+
+            const nameParam = roomName ? `&roomName=${encodeURIComponent(roomName)}` : '';
+            window.location.href = `/chat/chatRoom?roomId=${roomId}${nameParam}`;
+        } catch (error) {
+            console.error(error);
+            alert('채팅방에 참여 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        } finally {
+            if (buttonEl) {
+                buttonEl.disabled = false;
+                delete buttonEl.dataset.loading;
+            }
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         (async () => {
             if (window.authReady) {
@@ -284,6 +303,24 @@
             }
             fetchRooms(0);
         })();
+    });
+
+    roomListEl.addEventListener('click', (event) => {
+        const button = event.target.closest('.btn-join');
+        if (!button) return;
+
+        const container = button.closest('[data-room-id]');
+        const roomIdAttr = button.dataset.roomId || container?.dataset.roomId;
+        const roomId = Number(roomIdAttr);
+        if (!roomId) {
+            alert('채팅방 정보를 확인할 수 없습니다.');
+            return;
+        }
+
+        const encodedName = button.dataset.roomName || container?.dataset.roomName || '';
+        const roomName = encodedName ? decodeURIComponent(encodedName) : '';
+
+        joinGroupRoom(roomId, roomName, button);
     });
 
     if (createInputEl && createButtonEl) {

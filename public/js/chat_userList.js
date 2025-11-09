@@ -1,3 +1,11 @@
+// function 정의
+// 1. 사용자 목록 렌더링
+// 2. 페이지네이션 UI 갱신
+// 3. 사용자 목록 api 호출
+// 4. 닉네임으로 사용자 검색
+// 5. 1:1 채팅방 생성 api 호출
+
+
 (() => {
     const userListEl = document.getElementById('user-list');
     const paginationEl = document.getElementById('pagination');
@@ -16,10 +24,7 @@
 
     const DEFAULT_PROFILE = '/img/default-profile.png';
 
-    /**
-     * 사용자 목록 DOM을 업데이트한다.
-     * @param {Array} list - 렌더링할 사용자 데이터 배열
-     */
+    // 사용자 목록 렌더링
     function renderUsers(list) {
         if (!list.length) {
             userListEl.innerHTML = `
@@ -33,8 +38,9 @@
         const html = list.map((user) => {
             const profileUrl = user.profileImageUrl || DEFAULT_PROFILE;
             const nickname = user.nickname ?? '이름 없음';
+            const encodedNickname = encodeURIComponent(nickname);
             return `
-                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-user-id="${user.userId}">
+                <div class="list-group-item d-flex align-items-center justify-content-between flex-wrap gap-3" data-user-id="${user.userId}" data-user-nickname="${encodedNickname}">
                     <div class="d-flex align-items-center gap-3">
                         <img 
                             src="${profileUrl}" 
@@ -47,7 +53,7 @@
                         >
                         <div class="fw-semibold">${nickname}</div>
                     </div>
-                    <button type="button" class="btn btn-outline-primary btn-chat" data-user-id="${user.userId}">
+                    <button type="button" class="btn btn-outline-primary btn-chat" data-user-id="${user.userId}" data-user-nickname="${encodedNickname}">
                         <i class="bi bi-send-fill me-1"></i> 채팅하기
                     </button>
                 </div>
@@ -57,9 +63,7 @@
         userListEl.innerHTML = html;
     }
 
-    /**
-     * 현재 페이지 정보에 맞춰 페이지네이션을 갱신한다.
-     */
+    // 페이지네이션 UI 갱신
     function renderPagination() {
         const items = [];
 
@@ -100,9 +104,7 @@
         paginationEl.innerHTML = items.join('');
     }
 
-    /**
-     * 목록과 페이지네이션에 사용할 로딩 스피너를 렌더링한다.
-     */
+    // 로딩 스피너 렌더링
     function renderLoading() {
         userListEl.innerHTML = `
             <div class="text-center py-5 w-100">
@@ -113,10 +115,7 @@
         `;
     }
 
-    /**
-     * 기본 사용자 목록 페이지를 불러온다.
-     * @param {number} page - 0 기반 페이지 번호
-     */
+    // 사용자 목록 api 호출
     async function fetchUsers(page) {
         if (state.isLoading) return;
         state.isLoading = true;
@@ -150,10 +149,7 @@
         }
     }
 
-    /**
-     * 닉네임으로 사용자를 검색한다.
-     * @param {string} nickname - 검색할 닉네임
-     */
+    // 닉네임으로 사용자 검색
     async function searchUserByNickname(nickname) {
         const trimmed = nickname.trim();
         if (!trimmed) {
@@ -205,6 +201,7 @@
         }
     }
 
+    // 페이지네이션 클릭 이벤트 처리
     paginationEl.addEventListener('click', (event) => {
         const target = event.target.closest('.page-link');
         if (!target || state.isLoading) return;
@@ -216,7 +213,8 @@
         fetchUsers(page);
     });
 
-    async function createPrivateRoom(otherMemberId, buttonEl) {
+    // 1:1 채팅방 생성 또는 기존 채팅방으로 이동
+    async function createPrivateRoom(otherMemberId, nickname, buttonEl) {
         if (!otherMemberId || !Number.isFinite(otherMemberId)) return;
         if (buttonEl) {
             buttonEl.disabled = true;
@@ -232,7 +230,8 @@
             const roomId = payload?.data;
             if (!roomId) throw new Error('채팅방 정보가 올바르지 않습니다.');
 
-            window.location.href = `/chat/chatRoom?roomId=${roomId}`;
+            const displayName = nickname || '1:1 채팅';
+            window.location.href = `/chat/chatRoom?roomId=${roomId}&roomName=${encodeURIComponent(displayName)}`;
         } catch (error) {
             console.error(error);
             alert('채팅방을 열 수 없습니다. 잠시 후 다시 시도해주세요.');
@@ -244,19 +243,25 @@
         }
     }
 
+    // 사용자 목록에서 채팅하기 버튼 클릭 이벤트 처리
     userListEl.addEventListener('click', (event) => {
         const button = event.target.closest('.btn-chat');
         if (!button || button.dataset.loading === 'true') return;
 
-        const userIdAttr = button.dataset.userId || button.closest('[data-user-id]')?.dataset.userId;
+        const container = button.closest('[data-user-id]');
+        const userIdAttr = button.dataset.userId || container?.dataset.userId;
         const userId = Number(userIdAttr);
         if (!userId) {
             alert('사용자 정보를 확인할 수 없습니다.');
             return;
         }
 
-        createPrivateRoom(userId, button);
+        const encodedNickname = button.dataset.userNickname || container?.dataset.userNickname || '';
+        const nickname = encodedNickname ? decodeURIComponent(encodedNickname) : '';
+
+        createPrivateRoom(userId, nickname, button);
     });
+
 
     if (searchInputEl && searchButtonEl) {
         searchButtonEl.addEventListener('click', () => {
@@ -271,6 +276,7 @@
         });
     }
 
+    // 초기 사용자 목록 불러오기
     document.addEventListener('DOMContentLoaded', () => {
         (async () => {
             if (window.authReady) {

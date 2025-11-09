@@ -1,3 +1,6 @@
+// function 정의
+
+
 (() => {
     const roomListEl = document.getElementById('my-room-list');
     const paginationEl = document.getElementById('my-room-pagination');
@@ -15,10 +18,7 @@
         viewFilter: 'group', // group | private
     };
 
-    /**
-     * 채팅방 리스트를 렌더링한다.
-     * @param {Array} list
-     */
+    // 채팅방 렌더링
     function buildRoomItems(list, { showExit }) {
         if (!list.length) {
             return `
@@ -30,6 +30,7 @@
 
         return list.map((room) => {
             const name = room.roomName ?? '이름 없는 채팅방';
+            const encodedName = encodeURIComponent(name);
             const unread = Number(room.unReadCount) || 0;
             const badge = unread > 0 ? `<span class="unread-badge">${unread}</span>` : '';
             const exitButton = showExit && room.isGroupChat ? `
@@ -47,7 +48,7 @@
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <a href="/chat/chatRoom?roomId=${room.roomId}" class="btn btn-outline-primary btn-enter">
+                        <a href="/chat/chatRoom?roomId=${room.roomId}&roomName=${encodedName}" class="btn btn-outline-primary btn-enter">
                             <i class="bi bi-arrow-right-circle me-1"></i> 채팅방 입장
                         </a>
                         ${exitButton}
@@ -57,6 +58,8 @@
         }).join('');
     }
 
+
+    // 그룹 채팅/개인 채팅 필터 적용
     function applyViewFilter(list) {
         if (state.viewFilter === 'group') {
             return list.filter((room) => room.isGroupChat);
@@ -64,6 +67,7 @@
         return list.filter((room) => !room.isGroupChat);
     }
 
+    // 채팅방 렌더링
     function renderRooms(list) {
         const html = buildRoomItems(list, {
             showExit: state.viewFilter !== 'private',
@@ -71,9 +75,7 @@
         roomListEl.innerHTML = html;
     }
 
-    /**
-     * 페이징된 UI를 갱신한다.
-     */
+    // 페이지네이션 UI 갱신
     function renderPagination(totalPages) {
         const current = state.currentPage;
         const items = [];
@@ -101,19 +103,14 @@
         paginationEl.innerHTML = items.join('');
     }
 
-    /**
-     * 현재 페이지에 해당하는 데이터를 반환한다.
-     */
+    // 현재 페이지에 해당하는 채팅방 목록을 반환
     function getCurrentPageRooms() {
         const filtered = applyViewFilter(state.filteredRooms);
         const start = state.currentPage * PAGE_SIZE;
         return filtered.slice(start, start + PAGE_SIZE);
     }
 
-    /**
-     * 검색 키워드를 적용한다.
-     * @param {string} keyword
-     */
+    // 검색 적용
     function applySearch(keyword) {
         if (!keyword) {
             state.filteredRooms = [...state.allRooms];
@@ -127,9 +124,7 @@
         updateView();
     }
 
-    /**
-     * 전체 UI를 리렌더링한다.
-     */
+    // 뷰 업데이트
     function updateView() {
         const totalPages = Math.max(Math.ceil(applyViewFilter(state.filteredRooms).length / PAGE_SIZE), 1);
         const safePage = Math.min(state.currentPage, totalPages - 1);
@@ -139,9 +134,7 @@
         renderPagination(totalPages);
     }
 
-    /**
-     * 내 채팅방 목록을 API로부터 가져온다.
-     */
+    // 내 채팅방 목록 호출 API
     async function fetchMyRooms() {
         if (state.isLoading) return;
         state.isLoading = true;
@@ -181,10 +174,7 @@
         }
     }
 
-    /**
-     * 채팅방을 나간다.
-     * @param {number} roomId
-     */
+    // 채팅방 나가기 API
     async function leaveRoom(roomId) {
         if (!roomId) return;
         const confirmed = window.confirm('채팅방에서 나가시겠습니까?');

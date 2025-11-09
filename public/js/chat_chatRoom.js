@@ -7,6 +7,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const roomId = params.get('roomId');
+    const roomNameParam = params.get('roomName');
 
     if (!chatLogEl || !roomId) {
         alert('채팅방 정보를 확인할 수 없습니다.');
@@ -14,8 +15,8 @@
         return;
     }
 
-    const SUBSCRIBE_DESTINATION = window.buildApiUrl(`/v1/topic/${roomId}`);
-    const PUBLISH_DESTINATION = window.buildApiUrl(`/v1/publish/${roomId}`);
+    const SUBSCRIBE_DESTINATION = `/v1/topic/${roomId}`;
+    const PUBLISH_DESTINATION = `/v1/publish/${roomId}`;
 
     const state = {
         roomId,
@@ -24,7 +25,14 @@
         stompClient: null,
         socket: null,
         reconnectAttempts: 0,
+        roomName: roomNameParam || '',
+        subscription: null,
+        cleanupPromise: null,
     };
+
+    if (roomNameEl && state.roomName) {
+        roomNameEl.textContent = state.roomName;
+    }
 
     function escapeHtml(text = '') {
         return text.replace(/[&<>"']/g, (ch) => ({
@@ -36,6 +44,7 @@
         }[ch] || ch));
     }
 
+    // 시간 포맷팅
     function formatTimestamp(value) {
         if (!value) return '';
         const date = new Date(value);
@@ -43,6 +52,7 @@
         return date.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
     }
 
+    // 빈 상태 제거
     function clearEmptyState() {
         if (emptyStateEl) {
             emptyStateEl.remove();
@@ -55,6 +65,7 @@
         });
     }
 
+    // 메시지 마크업 생성
     function createMessageMarkup(message) {
         const isSelf = state.currentUser && message.senderId === state.currentUser.userId;
         const nickname = message.nickName || message.nickname || `사용자 ${message.senderId ?? ''}`;
@@ -70,6 +81,7 @@
         `;
     }
 
+    // 메시지 렌더링
     function renderMessages(messages) {
         clearEmptyState();
         chatLogEl.innerHTML = messages.map(createMessageMarkup).join('') || `
@@ -80,6 +92,7 @@
         scrollToBottom();
     }
 
+    // 메시지 추가
     function appendMessage(message) {
         clearEmptyState();
         state.messages.push(message);
@@ -87,6 +100,8 @@
         scrollToBottom();
     }
 
+
+    // 현재 사용자 정보 호출 API
     async function fetchCurrentUser() {
         try {
             const res = await window.customFetch(window.buildApiUrl('/v1/users/me'), { method: 'GET' });
@@ -98,6 +113,7 @@
         }
     }
 
+    // 채팅 기록 호출 API
     async function fetchChatHistory() {
         try {
             const res = await window.customFetch(window.buildApiUrl(`/v1/chat/history/${roomId}`), { method: 'GET' });
@@ -116,6 +132,7 @@
         }
     }
 
+    // 웹소켓 재연결 스케줄링
     function scheduleReconnect() {
         const maxAttempts = 5;
         if (state.reconnectAttempts >= maxAttempts) {
@@ -127,37 +144,53 @@
         setTimeout(connectSocket, delay);
     }
 
+    // 웹소켓 연결
     function connectSocket() {
         if (state.stompClient?.connected) return;
 
-        const socket = new SockJS(window.buildApiUrl('/v1/connect'));
+        const socket = new SockJS(window.buildApiUrl('/v1/connect'), null, {
+            withCredentials: true,
+            transportOptions: {
+                xhrPolling: { withCredentials: true },
+                xhrStreaming: { withCredentials: true },
+            },
+        });
         const stompClient = Stomp.over(socket);
         stompClient.debug = null;
 
-        const headers = {};
-        const accessToken = window.getAccessToken && window.getAccessToken();
-        if (accessToken) headers.access = accessToken;
+        const headers = { ...getAccessHeader() };
 
+        
         stompClient.connect(headers, () => {
             state.socket = socket;
             state.stompClient = stompClient;
             state.reconnectAttempts = 0;
 
-            stompClient.subscribe(SUBSCRIBE_DESTINATION, (frame) => {
+            state.subscription = stompClient.subscribe(SUBSCRIBE_DESTINATION, (frame) => {
                 try {
                     const body = JSON.parse(frame.body);
                     appendMessage(body);
                 } catch (err) {
                     console.error('수신 메시지 파싱 실패:', err);
                 }
-            });
+            }, getAccessHeader());
         }, (error) => {
             console.error('웹소켓 연결 오류:', error);
             scheduleReconnect();
         });
     }
 
-    function disconnectSocket() {
+    function performSocketDisconnect() {
+        if (state.subscription) {
+            try {
+                state.subscription.unsubscribe({ destination: SUBSCRIBE_DESTINATION, ...getAccessHeader() });
+            } catch (error) {
+                console.error('구독 해제 실패:', error);
+            } finally {
+                state.subscription = null;
+            }
+        }
+
         if (state.stompClient && state.stompClient.connected) {
             state.stompClient.disconnect();
         }
@@ -168,15 +201,49 @@
         state.socket = null;
     }
 
+    async function markMessagesRead({ keepalive = false } = {}) {
+        if (!state.roomId) return;
+        try {
+            const res = await window.customFetch(
+                window.buildApiUrl(`/v1/chat/room/${state.roomId}/read`),
+                { method: 'POST', keepalive }
+            );
+            if (!res.ok) throw new Error('메시지 읽음 처리 실패');
+        } catch (error) {
+            console.error('메시지 읽음 처리 중 오류:', error);
+        }
+    }
+
+    function cleanupRoomConnection({ keepalive = false } = {}) {
+        if (state.cleanupPromise) return state.cleanupPromise;
+
+        state.cleanupPromise = (async () => {
+            await markMessagesRead({ keepalive });
+            performSocketDisconnect();
+        })().finally(() => {
+            state.cleanupPromise = null;
+        });
+
+        return state.cleanupPromise;
+    }
+
+
+    // 전송 버튼 상태 업데이트
     function updateSendButtonState() {
         if (!sendBtn || !messageInputEl) return;
         const hasText = Boolean(messageInputEl.value.trim());
         sendBtn.disabled = !hasText;
     }
 
+    // 메시지 전송
     function sendMessage() {
         const content = messageInputEl.value.trim();
         if (!content) return;
+
+        if (!state.currentUser?.userId) {
+            alert('사용자 정보를 확인할 수 없습니다. 다시 로그인 후 이용해주세요.');
+            return;
+        }
 
         if (!state.stompClient || !state.stompClient.connected) {
             alert('서버와 연결되지 않았습니다. 잠시 후 다시 시도해주세요.');
@@ -186,10 +253,11 @@
         const payload = {
             roomId: Number(state.roomId),
             message: content,
+            senderId: state.currentUser.userId,
         };
 
         try {
-            state.stompClient.send(PUBLISH_DESTINATION, {}, JSON.stringify(payload));
+            state.stompClient.send(PUBLISH_DESTINATION, getAccessHeader(), JSON.stringify(payload));
             messageInputEl.value = '';
             updateSendButtonState();
         } catch (error) {
@@ -219,9 +287,13 @@
             updateSendButtonState();
         }
 
-        window.addEventListener('beforeunload', () => {
-            disconnectSocket();
-        });
+        const handleTeardown = (event) => {
+            const keepalive = event?.type === 'beforeunload';
+            cleanupRoomConnection({ keepalive });
+        };
+
+        window.addEventListener('beforeunload', handleTeardown);
+        window.addEventListener('pagehide', handleTeardown);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -233,10 +305,18 @@
                     // ignore; protected routes will handle redirect
                 }
             }
-            await fetchCurrentUser();
-            await fetchChatHistory();
-            connectSocket();
             attachEvents();
+            try {
+                await fetchCurrentUser();
+                await fetchChatHistory();
+                connectSocket();
+            } catch (error) {
+                console.error('채팅방 초기화 실패:', error);
+            }
         })();
     });
 })();
+    function getAccessHeader() {
+        const token = window.getAccessToken && window.getAccessToken();
+        return token ? { access: token } : {};
+    }
