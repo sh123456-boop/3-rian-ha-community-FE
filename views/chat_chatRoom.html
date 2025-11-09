@@ -19,6 +19,9 @@
 
         .chat-room-shell {
             flex: 1;
+            min-height: 0;
+            height: calc(100vh - 140px);
+            max-height: 900px;
             display: flex;
             flex-direction: column;
             max-width: 960px;
@@ -32,8 +35,10 @@
             border-radius: 24px;
             box-shadow: 0 35px 80px rgba(15, 23, 42, 0.12);
             flex: 1;
+            height: 100%;
             display: flex;
             flex-direction: column;
+            min-height: 0;
             overflow: hidden;
         }
 
@@ -79,6 +84,7 @@
 
         .chat-log {
             flex: 1;
+            min-height: 0;
             padding: 2rem;
             overflow-y: auto;
             background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
@@ -165,11 +171,13 @@
 
         @media (max-width: 768px) {
             .chat-room-shell {
+                height: calc(100vh - 120px);
                 padding: 1.25rem 0.75rem 1rem;
             }
 
             .chat-room-card {
                 border-radius: 16px;
+                height: 100%;
             }
 
             .chat-room-header {
