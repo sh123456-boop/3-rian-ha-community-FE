@@ -3,6 +3,7 @@
     const emptyStateEl = document.getElementById('chat-log-empty');
     const messageInputEl = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
+    const goMyChatListBtn = document.getElementById('my-chat-list-btn');
     const roomNameEl = document.getElementById('chat-room-name');
 
     const params = new URLSearchParams(window.location.search);
@@ -132,18 +133,6 @@
         }
     }
 
-    // 웹소켓 재연결 스케줄링
-    function scheduleReconnect() {
-        const maxAttempts = 5;
-        if (state.reconnectAttempts >= maxAttempts) {
-            console.error('웹소켓 재연결에 실패했습니다.');
-            return;
-        }
-        const delay = Math.min(1000 * 2 ** state.reconnectAttempts, 10000);
-        state.reconnectAttempts += 1;
-        setTimeout(connectSocket, delay);
-    }
-
     // 웹소켓 연결
     function connectSocket() {
         if (state.stompClient?.connected) return;
@@ -157,6 +146,19 @@
         });
         const stompClient = Stomp.over(socket);
         stompClient.debug = null;
+        socket.onclose = (event) => {
+            console.warn('SockJS connection closed', {
+                code: event.code,
+                reason: event.reason,
+                wasClean: event.wasClean,
+            });
+        };
+        stompClient.onStompError = (frame) => {
+            console.error('STOMP error from server:', frame.headers?.message || 'Unknown error', frame.body);
+        };
+        stompClient.onWebSocketClose = (evt) => {
+            console.warn('STOMP websocket closed', evt);
+        };
 
         const headers = { ...getAccessHeader() };
 
@@ -176,7 +178,6 @@
             }, getAccessHeader());
         }, (error) => {
             console.error('웹소켓 연결 오류:', error);
-            scheduleReconnect();
         });
     }
 
@@ -256,8 +257,15 @@
             senderId: state.currentUser.userId,
         };
 
+        const optimisticMessage = {
+            ...payload,
+            createdAt: new Date().toISOString(),
+            nickName: state.currentUser.nickName || state.currentUser.nickname || state.currentUser.name || '나',
+        };
+
         try {
             state.stompClient.send(PUBLISH_DESTINATION, getAccessHeader(), JSON.stringify(payload));
+            appendMessage(optimisticMessage);
             messageInputEl.value = '';
             updateSendButtonState();
         } catch (error) {
@@ -270,10 +278,17 @@
             sendBtn.addEventListener('click', sendMessage);
         }
 
+        if (goMyChatListBtn) {
+            goMyChatListBtn.addEventListener('click', () => {
+                window.location.href = '/chat/myChatList';
+            });
+        }
+
         if (messageInputEl) {
             const handleInput = () => updateSendButtonState();
             messageInputEl.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' && !event.shiftKey) {
+                    if (event.isComposing || event.repeat) return; // avoid duplicate sends from IME/repeat
                     event.preventDefault();
                     sendMessage();
                 }
@@ -289,11 +304,12 @@
 
         const handleTeardown = (event) => {
             const keepalive = event?.type === 'beforeunload';
+            console.log('[chat] teardown triggered:', event?.type, { keepalive });
             cleanupRoomConnection({ keepalive });
         };
 
         window.addEventListener('beforeunload', handleTeardown);
-        window.addEventListener('pagehide', handleTeardown);
+       //window.addEventListener('pagehide', handleTeardown);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
