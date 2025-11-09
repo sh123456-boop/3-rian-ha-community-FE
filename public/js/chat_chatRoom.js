@@ -257,15 +257,8 @@
             senderId: state.currentUser.userId,
         };
 
-        const optimisticMessage = {
-            ...payload,
-            createdAt: new Date().toISOString(),
-            nickName: state.currentUser.nickName || state.currentUser.nickname || state.currentUser.name || '나',
-        };
-
         try {
             state.stompClient.send(PUBLISH_DESTINATION, getAccessHeader(), JSON.stringify(payload));
-            appendMessage(optimisticMessage);
             messageInputEl.value = '';
             updateSendButtonState();
         } catch (error) {
