@@ -16,7 +16,38 @@
         currentPage: 0,
         isLoading: false,
         viewFilter: 'group', // group | private
+        currentUser: null,
+        currentUserLoaded: false,
     };
+
+    function normalizeName(value) {
+        if (!value) return '';
+        return String(value).trim().toLowerCase();
+    }
+
+    function getRoomDisplayName(room) {
+        const rawName = room?.roomName || '';
+        const fallback = rawName.trim() || '이름 없는 채팅방';
+        if (!room || room.isGroupChat || !state.currentUser) {
+            return fallback;
+        }
+
+        const myNames = [
+            state.currentUser.nickname,
+            state.currentUser.nickName,
+            state.currentUser.name,
+        ].filter(Boolean).map(normalizeName);
+
+        const myNameSet = new Set(myNames);
+        const parts = rawName.split(/-|–/).map((part) => part.trim()).filter(Boolean);
+
+        if (!parts.length) {
+            return fallback;
+        }
+
+        const otherName = parts.find((part) => !myNameSet.has(normalizeName(part)));
+        return otherName || parts[0];
+    }
 
     // 채팅방 렌더링
     function buildRoomItems(list, { showExit }) {
@@ -29,7 +60,7 @@
         }
 
         return list.map((room) => {
-            const name = room.roomName ?? '이름 없는 채팅방';
+            const name = getRoomDisplayName(room);
             const encodedName = encodeURIComponent(name);
             const unread = Number(room.unReadCount) || 0;
             const badge = unread > 0 ? `<span class="unread-badge">${unread}</span>` : '';
@@ -117,7 +148,7 @@
         } else {
             const lower = keyword.toLowerCase();
             state.filteredRooms = state.allRooms.filter((room) => {
-                return (room.roomName || '').toLowerCase().includes(lower);
+                return getRoomDisplayName(room).toLowerCase().includes(lower);
             });
         }
         state.currentPage = 0;
@@ -132,6 +163,22 @@
 
         renderRooms(getCurrentPageRooms());
         renderPagination(totalPages);
+    }
+
+    async function fetchCurrentUser() {
+        if (state.currentUserLoaded) {
+            return state.currentUser;
+        }
+        state.currentUserLoaded = true;
+        try {
+            const res = await window.customFetch(window.buildApiUrl('/v1/users/me'), { method: 'GET' });
+            if (!res.ok) throw new Error('사용자 정보를 불러오지 못했습니다.');
+            const payload = await res.json();
+            state.currentUser = payload?.data || null;
+        } catch (error) {
+            console.error('현재 사용자 정보를 불러오지 못했습니다.', error);
+        }
+        return state.currentUser;
     }
 
     // 내 채팅방 목록 호출 API
@@ -247,7 +294,12 @@
                     // ignore - auth middleware will redirect if needed
                 }
             }
-            fetchMyRooms();
+            try {
+                await fetchCurrentUser();
+            } catch {
+                // 사용자 정보 없음 - 개인 채팅방 이름은 원본을 그대로 사용
+            }
+            await fetchMyRooms();
         })();
     });
 })();
