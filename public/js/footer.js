@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const termsLink = host.querySelector('#footer-terms-link');
     const privacyLink = host.querySelector('#footer-privacy-link');
     if (typeof window.buildApiUrl === 'function') {
-      if (termsLink) termsLink.href = window.buildApiUrl('/terms');
-      if (privacyLink) privacyLink.href = window.buildApiUrl('/privacy');
+      if (termsLink) termsLink.href = window.buildApiUrl('/v1/terms');
+      if (privacyLink) privacyLink.href = window.buildApiUrl('/v1/privacy');
     }
   } catch (e) {
     console.error('Footer load failed:', e);
