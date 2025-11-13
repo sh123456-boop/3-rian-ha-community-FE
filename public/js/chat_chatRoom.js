@@ -71,7 +71,7 @@
         const isSelf = state.currentUser && message.senderId === state.currentUser.userId;
         const nickname = message.nickName || message.nickname || `사용자 ${message.senderId ?? ''}`;
         const senderLabel = isSelf ? '나' : nickname;
-        const meta = formatTimestamp(message.createdAt);
+        const meta = formatTimestamp(message.createdAt || Date.now());
         const content = escapeHtml(message.message || '');
         return `
             <div class="message-group${isSelf ? ' self' : ''}">
