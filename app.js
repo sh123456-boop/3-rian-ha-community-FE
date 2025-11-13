@@ -14,6 +14,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
+// ALB health check endpoint
+app.get('/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'alb-healthcheck.html'));
+});
+
 app.get('/join', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'signup.html'));
 });
