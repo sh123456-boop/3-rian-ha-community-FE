@@ -43,12 +43,8 @@ jobs:
           
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAGS
 
-      - name: Start ASG Instance Refresh
+      - name: Start Instance Refresh for Express ASG
         run: |
-          ASG_NAME="express"
-            
-          aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name "$ASG_NAME" \
-            --preferences MinHealthyPercentage=100,InstanceWarmup=60
-            
-          echo "Started instance refresh for $ASG_NAME"    
+            aws autoscaling start-instance-refresh \
+              --auto-scaling-group-name "express-asg" \
+              --preferences '{"MinHealthyPercentage":0,"SkipMatching":false}'
