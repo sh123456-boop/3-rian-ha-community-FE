@@ -16,8 +16,8 @@
         return;
     }
 
-    const SUBSCRIBE_DESTINATION = `/v1/topic/${roomId}`;
-    const PUBLISH_DESTINATION = `/v1/publish/${roomId}`;
+    const SUBSCRIBE_DESTINATION = `/v1/chat/topic/${roomId}`;
+    const PUBLISH_DESTINATION = `/v1/chat/publish/${roomId}`;
 
     const state = {
         roomId,
@@ -137,7 +137,7 @@
     function connectSocket() {
         if (state.stompClient?.connected) return;
 
-        const socket = new SockJS(window.buildApiUrl('/v1/connect'), null, {
+        const socket = new SockJS(window.buildApiUrl('/v1/chat/connect'), null, {
             withCredentials: true,
             transportOptions: {
                 xhrPolling: { withCredentials: true },
