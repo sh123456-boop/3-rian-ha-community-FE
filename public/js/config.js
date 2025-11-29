@@ -1,7 +1,6 @@
 (function () {
-    // const DEFAULT_API_BASE_URL = 'http://localhost:8080';
+    const DEFAULT_API_BASE_URL = 'http://localhost:8080';
     // const DEFAULT_API_BASE_URL = 'https://ktb-rian.com';
-    const DEFAULT_API_BASE_URL = 'http://localhost:8000';
 
     function normalizeBaseUrl(raw) {
         if (typeof raw !== 'string') return DEFAULT_API_BASE_URL;
