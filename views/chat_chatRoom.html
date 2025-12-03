@@ -164,6 +164,47 @@
             box-shadow: none;
         }
 
+        .llm-answer-panel {
+            margin: 0 1.5rem 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #f8fafc;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .llm-answer-panel:hover {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+        }
+
+        .llm-answer-label {
+            font-weight: 600;
+            color: #4f46e5;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .llm-answer-text {
+            color: #0f172a;
+            line-height: 1.5;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .llm-answer-close {
+            margin-left: auto;
+            opacity: 0.6;
+        }
+
+        .llm-answer-close:hover {
+            opacity: 1;
+        }
+
         .message-input-actions .btn {
             border-radius: 16px;
             padding: 0.5rem 0.85rem;
@@ -201,6 +242,10 @@
                 justify-content: flex-end;
                 gap: 0.5rem;
             }
+
+            .llm-answer-panel {
+                margin: 0 1rem 0.5rem;
+            }
         }
     </style>
 </head>
@@ -231,6 +276,12 @@
                 </div>
             </div>
 
+            <div class="llm-answer-panel d-none" id="llm-answer-container" role="button" tabindex="0">
+                <div class="llm-answer-label">추천 답변</div>
+                <div class="llm-answer-text" id="llm-answer-text"></div>
+                <button type="button" class="btn-close llm-answer-close" aria-label="추천 답변 닫기" id="llm-answer-close"></button>
+            </div>
+
             <div class="message-input-bar">
                 <div class="message-input-wrapper">
                     <textarea 
@@ -240,6 +291,9 @@
                     ></textarea>
                 </div>
                 <div class="message-input-actions">
+                    <button type="button" class="btn btn-outline-primary" id="auto-answer-btn">
+                        자동 답변
+                    </button>
                     <button type="button" class="btn btn-primary" id="send-btn" disabled>
                         보내기 <i class="bi bi-send-fill ms-1"></i>
                     </button>

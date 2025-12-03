@@ -3,6 +3,10 @@
       const emptyStateEl = document.getElementById('chat-log-empty');
       const messageInputEl = document.getElementById('message-input');
       const sendBtn = document.getElementById('send-btn');
+      const autoAnswerBtn = document.getElementById('auto-answer-btn');
+      const llmAnswerContainer = document.getElementById('llm-answer-container');
+      const llmAnswerTextEl = document.getElementById('llm-answer-text');
+      const llmAnswerCloseBtn = document.getElementById('llm-answer-close');
       const goMyChatListBtn = document.getElementById('my-chat-list-btn');
       const roomNameEl = document.getElementById('chat-room-name');
 
@@ -24,7 +28,16 @@
           reconnectAttempts: 0,
           roomName: roomNameParam || '',
           cleanupPromise: null,
+          llmAnswer: '',
       };
+
+      function extractMessageText(raw = '') {
+          if (typeof raw !== 'string') return '';
+          const trimmed = raw.trim();
+          const match = trimmed.match(/^[^:]*:\s*(.*)$/); // `[닉네임] : 내용` 또는 `닉네임: 내용`
+          if (match && match[1]) return match[1].trim();
+          return trimmed;
+      }
 
       if (roomNameEl && state.roomName) {
           roomNameEl.textContent = state.roomName;
@@ -87,6 +100,52 @@
           state.messages.push(message);
           chatLogEl.insertAdjacentHTML('beforeend',createMessageMarkup(message));
           scrollToBottom();
+      }
+
+      function setLlmAnswer(answer) {
+          state.llmAnswer = extractMessageText(answer);
+          if (!llmAnswerContainer || !llmAnswerTextEl) return;
+          if (!state.llmAnswer) {
+              llmAnswerContainer.classList.add('d-none');
+              llmAnswerTextEl.textContent = '';
+              return;
+          }
+          llmAnswerTextEl.textContent = state.llmAnswer;
+          llmAnswerContainer.classList.remove('d-none');
+      }
+
+      function clearLlmAnswer() {
+          setLlmAnswer('');
+      }
+
+      function handleLlmAnswerClick() {
+          if (!state.llmAnswer || !messageInputEl) return;
+          messageInputEl.value = state.llmAnswer;
+          messageInputEl.focus();
+          updateSendButtonState();
+      }
+
+      async function requestLlmAnswer() {
+          if (!autoAnswerBtn) return;
+          const originalLabel = autoAnswerBtn.textContent;
+          autoAnswerBtn.disabled = true;
+          autoAnswerBtn.textContent = '생성 중...';
+          try {
+              const url = window.buildApiUrl(`/v1/chat/llm?roomId=${encodeURIComponent(roomId)}`);
+              const res = await window.customFetch(url, { method: 'POST' });
+              if (!res.ok) throw new Error('자동 응답 생성에 실패했습니다.');
+              const payload = await res.json();
+              const answer = payload?.data?.answer;
+              if (!answer) throw new Error('응답이 비어 있습니다.');
+              setLlmAnswer(answer);
+          } catch (error) {
+              console.error('자동 답변 요청 실패:', error);
+              alert('자동 답변을 가져오지 못했습니다. 잠시 후 다시 시도해주세요.');
+              setLlmAnswer('');
+          } finally {
+              autoAnswerBtn.disabled = false;
+              autoAnswerBtn.textContent = originalLabel;
+          }
       }
 
       async function fetchCurrentUser() {
@@ -234,6 +293,25 @@
 
       function attachEvents() {
           if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+
+          if (autoAnswerBtn) autoAnswerBtn.addEventListener('click', requestLlmAnswer);
+
+          if (llmAnswerContainer) {
+              llmAnswerContainer.addEventListener('click', handleLlmAnswerClick);
+              llmAnswerContainer.addEventListener('keydown', (event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleLlmAnswerClick();
+                  }
+              });
+          }
+
+          if (llmAnswerCloseBtn) {
+              llmAnswerCloseBtn.addEventListener('click', (event) => {
+                  event.stopPropagation();
+                  clearLlmAnswer();
+              });
+          }
 
           if (goMyChatListBtn) {
               goMyChatListBtn.addEventListener('click', () => {
