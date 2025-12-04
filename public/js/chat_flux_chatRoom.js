@@ -285,6 +285,7 @@
           try {
               state.socket.send(JSON.stringify(payload));
               messageInputEl.value = '';
+              clearLlmAnswer();
               updateSendButtonState();
           } catch (error) {
               console.error('메시지 전송 실패:', error);
