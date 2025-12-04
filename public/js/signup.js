@@ -54,8 +54,8 @@ function validateNickname() {
         showError(nicknameValidation, '닉네임을 입력해주세요.', signupNicknameInput);
         return false;
     }
-    if (nickname.length < 2 || nickname.length > 10) {
-        showError(nicknameValidation, '닉네임은 2~10자 사이여야 합니다.', signupNicknameInput);
+    if (nickname.length < 2 || nickname.length > 20) {
+        showError(nicknameValidation, '닉네임은 2~20자 사이여야 합니다.', signupNicknameInput);
         return false;
     }
     if (!nicknameRegex.test(nickname)) {
@@ -73,8 +73,8 @@ function validateNickname() {
 async function checkNickname() {
     const nickname = signupNicknameInput.value.trim();
     
-    if (nickname.length < 2 || nickname.length > 10) {
-        showError(nicknameValidation, '닉네임은 2~10자 사이여야 합니다.', signupNicknameInput);
+    if (nickname.length < 2 || nickname.length > 20) {
+        showError(nicknameValidation, '닉네임은 2~20자 사이여야 합니다.', signupNicknameInput);
         return;
     }
     if (!nicknameRegex.test(nickname)) {
