@@ -28,15 +28,15 @@
 ## 🛠 사용 기술 및 Tools
 
 ### Front-end
-- 바닐라 JS (ES6+)
+- Vanilla JS 
 - HTML5, CSS3
 - Fetch API 기반 비동기 통신
 
 ---
 
 ## 📂 GitHub Repository
-- Back-end GitHub(Spring MVC 서버): `https://github.com/sh123456-boop/3-rian-ha-community-BE`
-- Back-end GitHub (Spring Webflux 서버 - chat 구현): `https://github.com/sh123456-boop/chat_flux`
+- Back-end GitHub(Spring MVC 서버): https://github.com/sh123456-boop/3-rian-ha-community-BE
+- Back-end GitHub (Spring Webflux 서버 - chat 구현): https://github.com/sh123456-boop/chat_flux
 
 ---
 
