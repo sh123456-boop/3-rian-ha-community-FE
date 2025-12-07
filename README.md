@@ -41,4 +41,4 @@
 ---
 
 ## 🎥 영상
-- YouTube: [https://youtu.be/3V6KJWw1kFE](https://youtu.be/3V6KJWw1kFE)
+- YouTube: https://youtu.be/3V6KJWw1kFE
