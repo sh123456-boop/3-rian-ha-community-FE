@@ -44,15 +44,15 @@ jobs:
           
           docker push $REGISTRY/$REPOSITORY:$FIXED_TAG
 
-      # - name: Restart systemd service on EC2
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.EC2_HOST }}
-      #     username: ${{ secrets.EC2_USER }}
-      #     key: ${{ secrets.EC2_SSH_KEY }}
-      #     port: 22
-      #     script: |
-      #       sudo systemctl restart ${{ secrets.SYSTEMD_SERVICE }}
+      - name: Restart systemd service on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            sudo systemctl restart express
 
       # - name: Start Instance Refresh for Express ASG
       #   run: |
