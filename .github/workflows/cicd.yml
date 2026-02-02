@@ -33,15 +33,32 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAGS: ${{ env.IMAGE_TAGS }}
+          GIT_SHA: ${{ github.sha }}
 
         run: |
           echo "REGISTRY=$REGISTRY"
           echo "REPOSITORY=$REPOSITORY"
           echo "IMAGE_TAGS=$IMAGE_TAGS"
           
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAGS .
+          DATE_TAG=$(date -u +%Y%m%d)
+          SHORT_SHA=${GIT_SHA:0:7}
+          VERSION_TAG="${DATE_TAG}-${SHORT_SHA}"
+          echo "VERSION_TAG=$VERSION_TAG"
+          
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAGS -t $REGISTRY/$REPOSITORY:$VERSION_TAG .
           
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAGS
+          docker push $REGISTRY/$REPOSITORY:$VERSION_TAG
+
+      # - name: Restart systemd service on EC2
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USER }}
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     port: 22
+      #     script: |
+      #       sudo systemctl restart ${{ secrets.SYSTEMD_SERVICE }}
 
       # - name: Start Instance Refresh for Express ASG
       #   run: |
