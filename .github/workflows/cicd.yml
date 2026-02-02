@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_TAGS: express
+  FIXED_TAG: express
 
 jobs:
   build-and-push:
@@ -32,22 +32,22 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          IMAGE_TAGS: ${{ env.IMAGE_TAGS }}
+          FIXED_TAG: ${{ env.FIXED_TAG }}
           GIT_SHA: ${{ github.sha }}
 
         run: |
           echo "REGISTRY=$REGISTRY"
           echo "REPOSITORY=$REPOSITORY"
-          echo "IMAGE_TAGS=$IMAGE_TAGS"
+          echo "FIXED_TAG=$FIXED_TAG"
           
           DATE_TAG=$(date -u +%Y%m%d)
           SHORT_SHA=${GIT_SHA:0:7}
           VERSION_TAG="${DATE_TAG}-${SHORT_SHA}"
           echo "VERSION_TAG=$VERSION_TAG"
           
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAGS -t $REGISTRY/$REPOSITORY:$VERSION_TAG .
+          docker build -t $REGISTRY/$REPOSITORY:$FIXED_TAG -t $REGISTRY/$REPOSITORY:$VERSION_TAG .
           
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAGS
+          docker push $REGISTRY/$REPOSITORY:$FIXED_TAG
           docker push $REGISTRY/$REPOSITORY:$VERSION_TAG
 
       # - name: Restart systemd service on EC2
